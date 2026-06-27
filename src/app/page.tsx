@@ -1,65 +1,35 @@
-import Image from "next/image";
+import { IndexCard } from "@/components/market/IndexCard";
+import { GainersLosers } from "@/components/market/GainersLosers";
+import { NewsFeed } from "@/components/market/NewsFeed";
+import { CommodityForexBar } from "@/components/market/CommodityForexBar";
+import { getMarketOverview, getMarketNews } from "@/lib/market-data";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [overview, news] = await Promise.all([getMarketOverview(), getMarketNews()]);
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      <section>
+        <h2 className="text-lg font-semibold mb-3">全球指數</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <IndexCard name="台股加權" price={overview.twMarket[0]?.price || 0} change={overview.twMarket[0]?.change || 0} changePercent={overview.twMarket[0]?.changePercent || 0} />
+          <IndexCard name="S&P 500" price={overview.usIndices.spy?.price || 0} change={overview.usIndices.spy?.change || 0} changePercent={overview.usIndices.spy?.changePercent || 0} />
+          <IndexCard name="NASDAQ" price={overview.usIndices.qqq?.price || 0} change={overview.usIndices.qqq?.change || 0} changePercent={overview.usIndices.qqq?.changePercent || 0} />
+          <IndexCard name="道瓊" price={overview.usIndices.dia?.price || 0} change={overview.usIndices.dia?.change || 0} changePercent={overview.usIndices.dia?.changePercent || 0} />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </section>
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2"><GainersLosers quotes={overview.twMarket} /></div>
+        <div><NewsFeed news={news} /></div>
+      </section>
+      <section>
+        <h2 className="text-lg font-semibold mb-3">原物料 &amp; 匯率</h2>
+        <CommodityForexBar />
+      </section>
+      <section className="py-4">
+        <div className="h-24 bg-muted rounded-lg flex items-center justify-center text-sm text-muted-foreground">廣告版位</div>
+      </section>
     </div>
   );
 }
