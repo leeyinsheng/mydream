@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { href: "/forex", label: "外匯" },
   { href: "/industry", label: "產業分析" },
   { href: "/screener", label: "篩選器" },
+  { href: "/exchange", label: "兌換商城" },
 ];
 
 export function Header() {
