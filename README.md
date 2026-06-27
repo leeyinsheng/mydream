@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FinPulse — 投資分析入口網站
 
-## Getting Started
+全球股市、原物料、外匯、產業分析、房地產一站式投資分析平台。
 
-First, run the development server:
+## 技術棧
+
+| 層級 | 技術 |
+|------|------|
+| 框架 | Next.js 16 (App Router) |
+| UI | Tailwind CSS v4 + shadcn/ui |
+| 圖表 | TradingView Lightweight Charts + Recharts |
+| 資料庫 | PostgreSQL + Prisma 6 |
+| 認證 | NextAuth.js v4 (JWT + Credentials) |
+| 主題 | next-themes (深/淺色) |
+| 部署 | Vercel / Docker |
+
+## 功能模組
+
+| 模組 | 路徑 | 說明 |
+|------|------|------|
+| 首頁 | `/` | 全球指數、漲跌排行、頭條新聞、原物料/匯率速覽 |
+| 股市 | `/stocks` | K 線圖 + MA5/MA20/MA60 技術指標 |
+| 原物料 | `/commodities` | 8 項商品即時報價 |
+| 外匯 | `/forex` | 8 貨幣對 + 各國基準利率 |
+| 產業分析 | `/industry` | 6 大產業龍頭股比較 + ETF |
+| 篩選器 | `/screener` | 多條件篩選並排序 |
+| 兌換商城 | `/exchange` | 點數兌換合作平台商品 |
+| 錢包 | `/wallet` | 餘額、充值、交易紀錄 |
+| 房地產 | `/real-estate` | 亞洲 12 國房價地圖/卡片/比較表 |
+
+## 快速開始
 
 ```bash
+# 安裝依賴
+npm install
+
+# 設定環境變數
+cp .env.example .env.local
+
+# 生成 Prisma client
+npx prisma generate
+
+# 啟動開發伺服器
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 環境變數
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+參見 `.env.example`：
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 變數 | 必要 | 說明 |
+|------|------|------|
+| `DATABASE_URL` | 否 | PostgreSQL 連線字串，無 DB 時使用 mock |
+| `NEXTAUTH_SECRET` | 是 | JWT 簽名密鑰 |
+| `NEXTAUTH_URL` | 是 | 網站 URL |
+| `FINNHUB_API_KEY` | 否 | Finnhub API key，無 key 時使用 mock |
 
-## Learn More
+## 部署
 
-To learn more about Next.js, take a look at the following resources:
+### Vercel（建議）
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm i -g vercel
+vercel --prod
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+環境變數需在 Vercel dashboard 設定，`vercel.json` 已配置。
 
-## Deploy on Vercel
+### Docker
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+docker compose up -d
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+含 PostgreSQL，執行後自動啟動應用 + 資料庫。
+
+### 手動
+
+```bash
+npm ci
+npx prisma generate
+npm run build
+npm start
+```
