@@ -15,7 +15,10 @@ export default function WalletPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") { router.push("/login"); return; }
+    if (status === "unauthenticated") {
+      const t = setTimeout(() => router.push("/login"), 1500);
+      return () => clearTimeout(t);
+    }
     if (status === "authenticated") {
       fetch("/api/wallet")
         .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
@@ -23,6 +26,15 @@ export default function WalletPage() {
         .catch(() => setError("無法載入錢包資料"));
     }
   }, [status, router]);
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <p className="text-muted-foreground">請先登入以查看錢包</p>
+        <p className="text-xs text-muted-foreground mt-1">即將為您導向登入頁面…</p>
+      </div>
+    );
+  }
 
   if (status === "loading") {
     return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">載入中…</div>;

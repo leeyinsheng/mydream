@@ -136,7 +136,7 @@ export default function ScreenerPage() {
             <thead>
               <tr className="border-b text-muted-foreground text-xs uppercase">
                 <th className="py-2 pr-4 cursor-pointer hover:text-foreground" onClick={() => toggleSort("name")}>名稱 {sortKey === "name" ? (sortAsc ? "▲" : "▼") : ""}</th>
-                <th className="py-2 pr-4 cursor-pointer hover:text-foreground" onClick={() => toggleSort("ticker")}>代碼</th>
+                <th className="py-2 pr-4 cursor-pointer hover:text-foreground" onClick={() => toggleSort("ticker")}>代碼 {sortKey === "ticker" ? (sortAsc ? "▲" : "▼") : ""}</th>
                 <th className="py-2 pr-4 text-right cursor-pointer hover:text-foreground" onClick={() => toggleSort("mcap")}>市值(億) {sortKey === "mcap" ? (sortAsc ? "▲" : "▼") : ""}</th>
                 <th className="py-2 pr-4 text-right cursor-pointer hover:text-foreground" onClick={() => toggleSort("price")}>股價 {sortKey === "price" ? (sortAsc ? "▲" : "▼") : ""}</th>
                 <th className="py-2 pr-4 text-right cursor-pointer hover:text-foreground" onClick={() => toggleSort("pe")}>本益比 {sortKey === "pe" ? (sortAsc ? "▲" : "▼") : ""}</th>
