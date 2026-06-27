@@ -15,6 +15,7 @@ const NAV_ITEMS = [
   { href: "/industry", label: "產業分析" },
   { href: "/screener", label: "篩選器" },
   { href: "/exchange", label: "兌換商城" },
+  { href: "/real-estate", label: "房地產" },
 ];
 
 export function Header() {
