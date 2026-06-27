@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockChartView } from "./StockChartView";
 
-export const dynamic = "force-dynamic";
-
 export default function StocksPage() {
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">

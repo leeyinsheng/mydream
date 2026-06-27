@@ -1,13 +1,16 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { User } from "lucide-react";
+import { User, Wallet } from "lucide-react";
 
 export function Header() {
   const { data: session } = useSession();
+  const router = useRouter();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 items-center px-4">
@@ -16,10 +19,17 @@ export function Header() {
           <Link href="/stocks" className="hover:text-primary transition-colors">股市</Link>
           <Link href="/commodities" className="hover:text-primary transition-colors">原物料</Link>
           <Link href="/forex" className="hover:text-primary transition-colors">外匯</Link>
+          <Link href="/industry" className="hover:text-primary transition-colors">產業分析</Link>
+          <Link href="/screener" className="hover:text-primary transition-colors">篩選器</Link>
         </nav>
         <div className="flex-1" />
         <div className="flex items-center gap-2">
           <ThemeToggle />
+          {session && (
+            <Button variant="ghost" size="icon" onClick={() => router.push("/wallet")}>
+              <Wallet className="h-5 w-5" />
+            </Button>
+          )}
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -27,11 +37,12 @@ export function Header() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem className="text-muted-foreground">{session.user?.email}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/wallet")}>錢包</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => signOut()}>登出</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="default" size="sm"><Link href="/login" className="text-primary-foreground">登入</Link></Button>
+            <Button variant="default" size="sm" onClick={() => router.push("/login")}>登入</Button>
           )}
         </div>
       </div>
