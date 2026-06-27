@@ -47,6 +47,9 @@ export async function createTransaction(
         data: { balance: { increment: amount } },
       });
     } else if (type === "withdraw" || type === "exchange") {
+      if (wallet.balance < amount) {
+        throw new Error("Insufficient balance");
+      }
       await tx.wallet.update({
         where: { id: wallet.id },
         data: { balance: { decrement: amount } },

@@ -19,7 +19,7 @@ export function ComparisonTable({ countries }: { countries: CountryRealEstate[] 
 
   function toggle(k: Key) { if (key === k) setAsc(!asc); else { setKey(k); setAsc(false); } }
 
-  function Icon({ col }: { col: Key }) {
+  function sortIcon(col: Key) {
     if (key !== col) return <ArrowUpDown className="h-3 w-3 ml-1 inline" />;
     return asc ? <ArrowUp className="h-3 w-3 ml-1 inline" /> : <ArrowDown className="h-3 w-3 ml-1 inline" />;
   }
@@ -37,9 +37,9 @@ export function ComparisonTable({ countries }: { countries: CountryRealEstate[] 
       <table className="w-full text-sm text-left">
         <thead>
           <tr className="border-b text-muted-foreground text-xs uppercase">
-            <th className="py-2 pr-4 cursor-pointer hover:text-foreground" onClick={() => toggle("country")}>國家<Icon col="country" /></th>
+            <th className="py-2 pr-4 cursor-pointer hover:text-foreground" onClick={() => toggle("country")}>國家{sortIcon("country")}</th>
             {numCols.map((c) => (
-              <th key={c.k} className="py-2 pr-4 text-right cursor-pointer hover:text-foreground" onClick={() => toggle(c.k)}>{c.label}<Icon col={c.k} /></th>
+              <th key={c.k} className="py-2 pr-4 text-right cursor-pointer hover:text-foreground" onClick={() => toggle(c.k)}>{c.label}{sortIcon(c.k)}</th>
             ))}
             <th className="py-2 text-right">房貸利率</th>
           </tr>

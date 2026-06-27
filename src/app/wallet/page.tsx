@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Wallet as WalletIcon, ArrowUpCircle, ArrowDownCircle, Plus, AlertCircle } from "lucide-react";
 
 export default function WalletPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [data, setData] = useState<{ wallet: { balance: number }; transactions: { id: string; type: string; amount: number; description: string; createdAt: string }[] } | null>(null);
   const [error, setError] = useState("");

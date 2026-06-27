@@ -93,12 +93,13 @@ export async function getMarketOverview() {
     high: raw.h, low: raw.l, open: raw.o, previousClose: raw.pc,
   } : null;
   const result = {
-    twMarket: twQuotes,
-    usIndices: { spy: toQ(spyQuote, "SPY"), qqq: toQ(qqqQuote, "QQQ"), dia: toQ(diaQuote, "DIA") },
+    twMarket: twQuotes.length > 0 ? twQuotes : MOCK_MARKET_OVERVIEW.twMarket,
+    usIndices: {
+      spy: toQ(spyQuote, "SPY") || MOCK_MARKET_OVERVIEW.usIndices.spy,
+      qqq: toQ(qqqQuote, "QQQ") || MOCK_MARKET_OVERVIEW.usIndices.qqq,
+      dia: toQ(diaQuote, "DIA") || MOCK_MARKET_OVERVIEW.usIndices.dia,
+    },
   };
-  if (result.twMarket.length === 0 && !result.usIndices.spy && !result.usIndices.qqq && !result.usIndices.dia) {
-    return MOCK_MARKET_OVERVIEW;
-  }
   return result;
 }
 
@@ -116,7 +117,7 @@ export async function getMarketNews(): Promise<NewsItem[]> {
     const res = await fetch(url);
     if (!res.ok) return MOCK_NEWS;
     const data = await res.json();
-    const items: NewsItem[] = (data || []).slice(0, 8).map((n: any) => ({
+    const items: NewsItem[] = (data || []).slice(0, 8).map((n: Record<string, unknown>) => ({
       headline: n.headline, summary: n.summary, url: n.url,
       source: n.source, datetime: n.datetime,
     }));

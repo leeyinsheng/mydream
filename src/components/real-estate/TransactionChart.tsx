@@ -9,7 +9,7 @@ export function TransactionChart({ data }: { data: { year: number; volume: numbe
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis dataKey="year" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(v: any) => [Number(v).toLocaleString(), "交易量"]} />
+          <Tooltip formatter={((value: unknown) => [Number(value || 0).toLocaleString(), "交易量"])} />
           <Bar dataKey="volume" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>

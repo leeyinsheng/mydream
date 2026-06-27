@@ -30,7 +30,7 @@ export async function createExchangeOrder(
     if (!product || product.status !== "active") {
       throw new Error("Product unavailable");
     }
-    if (product.stock > 0 && product.stock <= 0) {
+    if (product.stock === 0) {
       throw new Error("Out of stock");
     }
 

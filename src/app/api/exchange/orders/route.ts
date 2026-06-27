@@ -33,8 +33,8 @@ export async function POST(req: Request) {
   try {
     const order = await createExchangeOrder(userId, productId, product.pointsCost);
     return NextResponse.json({ success: true, order });
-  } catch (e: any) {
-    if (e.message === "Insufficient balance") {
+  } catch (e) {
+    if (e instanceof Error && e.message === "Insufficient balance") {
       return NextResponse.json({ error: "點數不足" }, { status: 400 });
     }
     return NextResponse.json({ error: "兌換失敗" }, { status: 500 });

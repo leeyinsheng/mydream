@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Wallet, ShoppingBag } from "lucide-react";
+import { Wallet } from "lucide-react";
 
 const PRODUCTS = [
   { id: "p1", name: "7-Eleven 禮券 500 元", desc: "全台 7-Eleven 門市通用", points: 4500, icon: "🎫", stock: -1, partner: "便利超商聯盟" },
@@ -26,11 +26,11 @@ export default function ExchangePage() {
   const [modal, setModal] = useState<string | null>(null);
   const [result, setResult] = useState<{ success: boolean; code?: string; error?: string } | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     if (session) {
       fetch("/api/wallet").then((r) => r.json()).then((d) => d.wallet && setWalletBalance(d.wallet.balance));
     }
-  });
+  }, [session]);
 
   function handleRedeem(productId: string) {
     setModal(productId);
