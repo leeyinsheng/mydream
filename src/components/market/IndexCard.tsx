@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface IndexCardProps {
   flag: string;
   name: string;
@@ -5,12 +7,13 @@ interface IndexCardProps {
   price: number;
   change: number;
   changePercent: number;
+  href?: string;
 }
 
-export function IndexCard({ flag, name, country, price, change, changePercent }: IndexCardProps) {
+export function IndexCard({ flag, name, country, price, change, changePercent, href }: IndexCardProps) {
   const isPositive = change >= 0;
-  return (
-    <div className={`rounded-lg border p-2.5 ${isPositive ? "border-green-500/20 bg-green-500/5" : "border-red-500/20 bg-red-500/5"}`}>
+  const card = (
+    <div className={`rounded-lg border p-2.5 transition-colors ${href ? "active:bg-muted cursor-pointer" : ""} ${isPositive ? "border-green-500/20 bg-green-500/5" : "border-red-500/20 bg-red-500/5"}`}>
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-base">{flag}</span>
         <span className="text-xs font-medium truncate">{name}</span>
@@ -21,4 +24,9 @@ export function IndexCard({ flag, name, country, price, change, changePercent }:
       </p>
     </div>
   );
+
+  if (href) {
+    return <Link href={href}>{card}</Link>;
+  }
+  return card;
 }

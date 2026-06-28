@@ -32,6 +32,7 @@ export default async function HomePage() {
               price={idx.price}
               change={idx.change}
               changePercent={idx.changePercent}
+              href={`/stocks/${encodeURIComponent(idx.symbol)}`}
             />
           ))}
         </div>
