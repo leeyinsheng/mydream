@@ -36,7 +36,7 @@ export default function RechargePage() {
   }
 
   return (
-    <div className="container mx-auto max-w-lg px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <Button variant="ghost" onClick={() => router.push("/wallet")}>
         <ArrowLeft className="h-4 w-4 mr-1" /> 返回錢包
       </Button>

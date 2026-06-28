@@ -6,7 +6,7 @@ import { SessionProvider } from "@/providers/SessionProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
 });
@@ -19,12 +19,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-TW" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans`}>
+      <body className={`${inter.variable} font-sans bg-background`}>
         <SessionProvider>
           <ThemeProvider>
-            <div className="min-h-screen flex flex-col">
+            <div className="flex flex-col min-h-screen max-w-[430px] mx-auto border-x border-border">
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 px-3 py-3">{children}</main>
               <Footer />
             </div>
           </ThemeProvider>

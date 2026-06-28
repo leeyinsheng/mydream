@@ -19,7 +19,7 @@ export default function RealEstatePage() {
   const countries = region === "全部" ? all : getCountriesByRegion(region);
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">房地產市場</h1>
       <p className="text-muted-foreground text-sm">亞洲 10 個國家/地區房地產數據比較與分析</p>
 
@@ -45,7 +45,7 @@ export default function RealEstatePage() {
           <AsiaMap countries={countries} onSelect={(id) => router.push(`/real-estate/${id}`)} />
         </TabsContent>
         <TabsContent value="cards" className="mt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             {countries.map((c) => (
               <CountryCard key={c.id} country={c} onClick={() => router.push(`/real-estate/${c.id}`)} />
             ))}

@@ -15,7 +15,7 @@ export default function CountryDetailPage() {
 
   if (!country) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="py-20 text-center">
         <p className="text-xl text-muted-foreground">找不到該國資料</p>
         <Button variant="link" onClick={() => router.push("/real-estate")}>返回總覽</Button>
       </div>
@@ -25,7 +25,7 @@ export default function CountryDetailPage() {
   const up = country.priceIndexYoY >= 0;
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <Button variant="ghost" onClick={() => router.push("/real-estate")}>
         <ArrowLeft className="h-4 w-4 mr-1" /> 返回總覽
       </Button>
@@ -38,7 +38,7 @@ export default function CountryDetailPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <Card><CardContent className="p-4 text-center"><Home className="h-5 w-5 mx-auto mb-1 text-muted-foreground" /><p className="text-xs text-muted-foreground">每平米均價</p><p className="text-xl font-bold mt-1">${country.capitalPricePerSqm.toLocaleString()}</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center"><BarChart3 className="h-5 w-5 mx-auto mb-1 text-muted-foreground" /><p className="text-xs text-muted-foreground">房價指數</p><p className="text-xl font-bold mt-1">{country.priceIndex.toFixed(1)}</p></CardContent></Card>
         <Card><CardContent className="p-4 text-center">{up ? <TrendingUp className="h-5 w-5 mx-auto mb-1 text-green-500" /> : <TrendingDown className="h-5 w-5 mx-auto mb-1 text-red-500" />}<p className="text-xs text-muted-foreground">年增率</p><p className={`text-xl font-bold mt-1 ${up ? "text-green-500" : "text-red-500"}`}>{up ? "+" : ""}{country.priceIndexYoY.toFixed(1)}%</p></CardContent></Card>
@@ -47,7 +47,7 @@ export default function CountryDetailPage() {
         <Card><CardContent className="p-4 text-center"><Landmark className="h-5 w-5 mx-auto mb-1 text-muted-foreground" /><p className="text-xs text-muted-foreground">房貸利率</p><p className="text-xl font-bold mt-1">{country.mortgageRateLow}~{country.mortgageRateHigh}%</p></CardContent></Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4">
         <Card><CardHeader><CardTitle className="text-base">房價指數走勢 (2018–2025)</CardTitle></CardHeader><CardContent><PriceIndexChart data={country.priceHistory} /></CardContent></Card>
         <Card><CardHeader><CardTitle className="text-base">季度交易量</CardTitle></CardHeader><CardContent><TransactionChart data={country.transactionHistory} /></CardContent></Card>
       </div>

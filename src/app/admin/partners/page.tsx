@@ -21,10 +21,10 @@ const PARTNERS = [
 
 export default function PartnerAdminPage() {
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">合作夥伴管理</h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         {PARTNERS.map((p) => (
           <Card key={p.id}>
             <CardHeader>

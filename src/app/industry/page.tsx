@@ -76,7 +76,7 @@ export default function IndustryPage() {
   const ind = INDUSTRIES[active];
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">產業分析</h1>
       <div className="flex gap-2 flex-wrap">
         {KEYS.map((k) => (

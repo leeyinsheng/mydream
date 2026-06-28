@@ -21,10 +21,10 @@ export default async function StocksPage() {
   ] : [];
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">股市</h1>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <Card className="lg:col-span-3">
+      <div className="grid grid-cols-1 gap-3">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base">
               {quote?.name || quote?.symbol || "個股"} ({quote?.symbol || ""})

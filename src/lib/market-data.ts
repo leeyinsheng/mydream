@@ -130,42 +130,85 @@ const MOCK_TW_STOCKS = [
   { symbol: "2002.TW", price: 24.50, change: -0.15, changePercent: -0.61, high: 24.8, low: 24.3, open: 24.65, previousClose: 24.65 },
 ];
 
-const MOCK_US_INDICES = {
-  spy: { symbol: "SPY", price: 542.18, change: 4.42, changePercent: 0.82, high: 544, low: 538, open: 537.76, previousClose: 537.76 },
-  qqq: { symbol: "QQQ", price: 486.50, change: 5.80, changePercent: 1.18, high: 488, low: 481, open: 480.70, previousClose: 480.70 },
-  dia: { symbol: "DIA", price: 394.50, change: 1.26, changePercent: 0.32, high: 396, low: 393, open: 393.24, previousClose: 393.24 },
-};
+export interface IndexInfo {
+  symbol: string;
+  name: string;
+  country: string;
+  flag: string;
+}
+
+const GLOBAL_INDICES: IndexInfo[] = [
+  { symbol: "^TWII", name: "台股加權", country: "台灣", flag: "🇹🇼" },
+  { symbol: "^GSPC", name: "S&P 500", country: "美國", flag: "🇺🇸" },
+  { symbol: "^IXIC", name: "NASDAQ", country: "美國", flag: "🇺🇸" },
+  { symbol: "^DJI", name: "道瓊工業", country: "美國", flag: "🇺🇸" },
+  { symbol: "^N225", name: "日經225", country: "日本", flag: "🇯🇵" },
+  { symbol: "^KS11", name: "KOSPI", country: "韓國", flag: "🇰🇷" },
+  { symbol: "000001.SS", name: "上證綜合", country: "中國", flag: "🇨🇳" },
+  { symbol: "399001.SZ", name: "深圳成指", country: "中國", flag: "🇨🇳" },
+  { symbol: "^HSI", name: "恆生指數", country: "香港", flag: "🇭🇰" },
+  { symbol: "^STI", name: "海峽時報", country: "新加坡", flag: "🇸🇬" },
+];
+
+export interface IndexQuote extends Quote {
+  name: string;
+  country: string;
+  flag: string;
+}
+
+const MOCK_INDICES: IndexQuote[] = [
+  { symbol: "^TWII", name: "台股加權", country: "台灣", flag: "🇹🇼", price: 21850, change: 268, changePercent: 1.24, high: 21900, low: 21600, open: 21582, previousClose: 21582 },
+  { symbol: "^GSPC", name: "S&P 500", country: "美國", flag: "🇺🇸", price: 5420, change: 44, changePercent: 0.82, high: 5440, low: 5380, open: 5376, previousClose: 5376 },
+  { symbol: "^IXIC", name: "NASDAQ", country: "美國", flag: "🇺🇸", price: 19012, change: 236, changePercent: 1.18, high: 19100, low: 18800, open: 18776, previousClose: 18776 },
+  { symbol: "^DJI", name: "道瓊工業", country: "美國", flag: "🇺🇸", price: 39450, change: 126, changePercent: 0.32, high: 39600, low: 39300, open: 39324, previousClose: 39324 },
+  { symbol: "^N225", name: "日經225", country: "日本", flag: "🇯🇵", price: 39842, change: -185, changePercent: -0.46, high: 40100, low: 39700, open: 40027, previousClose: 40027 },
+  { symbol: "^KS11", name: "KOSPI", country: "韓國", flag: "🇰🇷", price: 2685, change: 12.5, changePercent: 0.47, high: 2695, low: 2675, open: 2672.5, previousClose: 2672.5 },
+  { symbol: "000001.SS", name: "上證綜合", country: "中國", flag: "🇨🇳", price: 3150, change: -8.9, changePercent: -0.28, high: 3170, low: 3140, open: 3159, previousClose: 3159 },
+  { symbol: "399001.SZ", name: "深圳成指", country: "中國", flag: "🇨🇳", price: 10580, change: 85, changePercent: 0.81, high: 10620, low: 10500, open: 10495, previousClose: 10495 },
+  { symbol: "^HSI", name: "恆生指數", country: "香港", flag: "🇭🇰", price: 18200, change: 105, changePercent: 0.58, high: 18300, low: 18100, open: 18095, previousClose: 18095 },
+  { symbol: "^STI", name: "海峽時報", country: "新加坡", flag: "🇸🇬", price: 3380, change: 18, changePercent: 0.54, high: 3395, low: 3365, open: 3362, previousClose: 3362 },
+];
+
+export async function getGlobalIndices(): Promise<IndexQuote[]> {
+  const cacheKey = "global:indices";
+  const cached = await getCached<IndexQuote[]>(cacheKey);
+  if (cached) return cached;
+  try {
+    const results = await Promise.allSettled(
+      GLOBAL_INDICES.map(async (info) => {
+        const raw = await fetchYahoo(info.symbol);
+        if (!raw || !raw.meta.regularMarketPrice) return null;
+        const m = raw.meta;
+        const price = m.regularMarketPrice;
+        const prev = m.chartPreviousClose;
+        return {
+          symbol: info.symbol,
+          name: info.name,
+          country: info.country,
+          flag: info.flag,
+          price,
+          change: price - prev,
+          changePercent: prev ? ((price - prev) / prev) * 100 : 0,
+          high: m.regularMarketDayHigh,
+          low: m.regularMarketDayLow,
+          open: prev,
+          previousClose: prev,
+        };
+      })
+    );
+    const indices = results
+      .filter((r) => r.status === "fulfilled" && r.value !== null)
+      .map((r) => (r as PromiseFulfilledResult<IndexQuote>).value);
+    if (indices.length === 0) return MOCK_INDICES;
+    await setCache(cacheKey, indices, 60000);
+    return indices;
+  } catch { return MOCK_INDICES; }
+}
 
 export async function getMarketOverview() {
-  const [twResults, spyRaw, qqqRaw, diaRaw] = await Promise.all([
-    getMultipleQuotes(TW_STOCKS),
-    fetchYahoo("SPY"), fetchYahoo("QQQ"), fetchYahoo("DIA"),
-  ]);
-
-  const toQuote = (raw: YahooResult | null, sym: string): Quote | null => {
-    if (!raw || !raw.meta.regularMarketPrice) return null;
-    const m = raw.meta;
-    const price = m.regularMarketPrice;
-    const prev = m.chartPreviousClose;
-    return {
-      symbol: sym,
-      price,
-      change: price - prev,
-      changePercent: prev ? ((price - prev) / prev) * 100 : 0,
-      high: m.regularMarketDayHigh,
-      low: m.regularMarketDayLow,
-      open: prev,
-      previousClose: prev,
-    };
-  };
-
+  const twResults = await getMultipleQuotes(TW_STOCKS);
   return {
     twMarket: twResults.length > 0 ? twResults : MOCK_TW_STOCKS,
-    usIndices: {
-      spy: toQuote(spyRaw, "SPY") || MOCK_US_INDICES.spy,
-      qqq: toQuote(qqqRaw, "QQQ") || MOCK_US_INDICES.qqq,
-      dia: toQuote(diaRaw, "DIA") || MOCK_US_INDICES.dia,
-    },
   };
 }
 

@@ -29,7 +29,7 @@ export default function WalletPage() {
 
   if (status === "unauthenticated") {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="py-20 text-center">
         <p className="text-muted-foreground">請先登入以查看錢包</p>
         <p className="text-xs text-muted-foreground mt-1">即將為您導向登入頁面…</p>
       </div>
@@ -37,12 +37,12 @@ export default function WalletPage() {
   }
 
   if (status === "loading") {
-    return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">載入中…</div>;
+    return <div className="py-20 text-center text-muted-foreground">載入中…</div>;
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="py-20 text-center">
         <AlertCircle className="h-10 w-10 mx-auto mb-3 text-red-500" />
         <p className="text-muted-foreground">{error}</p>
         <Button variant="outline" className="mt-4" onClick={() => { setError(""); setData(null); }}>重試</Button>
@@ -51,16 +51,16 @@ export default function WalletPage() {
   }
 
   if (!data) {
-    return <div className="container mx-auto px-4 py-20 text-center text-muted-foreground">載入中…</div>;
+    return <div className="py-20 text-center text-muted-foreground">載入中…</div>;
   }
 
   const isPositive = (type: string) => type === "deposit";
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">錢包</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         <Card className="md:col-span-2">
           <CardContent className="p-6 flex items-center justify-between">
             <div>

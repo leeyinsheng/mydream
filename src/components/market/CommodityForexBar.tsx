@@ -5,7 +5,7 @@ export async function CommodityForexBar() {
   const forex = await getForexRates();
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 grid-cols-2 gap-2">
       {forex.slice(0, 4).map((item) => (
         <Card key={item.pair}>
           <CardContent className="p-3 text-center">

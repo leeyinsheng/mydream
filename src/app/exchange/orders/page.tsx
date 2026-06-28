@@ -26,7 +26,7 @@ export default function ExchangeOrdersPage() {
 
   if (status === "unauthenticated") {
     return (
-      <div className="container mx-auto px-4 py-20 text-center">
+      <div className="py-20 text-center">
         <p className="text-muted-foreground">請先登入以查看兌換紀錄</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push("/login")}>前往登入</Button>
       </div>
@@ -34,7 +34,7 @@ export default function ExchangeOrdersPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <Button variant="ghost" onClick={() => router.push("/exchange")}>
         <ArrowLeft className="h-4 w-4 mr-1" /> 返回兌換商城
       </Button>

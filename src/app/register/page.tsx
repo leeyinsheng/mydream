@@ -27,7 +27,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-md px-4 py-20">
+    <div className="py-20">
       <Card>
         <CardHeader><CardTitle className="text-center">註冊</CardTitle></CardHeader>
         <CardContent>

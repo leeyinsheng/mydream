@@ -14,7 +14,7 @@ export function GainersLosers({ quotes }: Props) {
   const losers = sorted.filter((q) => q.changePercent < 0).slice(-5).reverse();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-3">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm text-green-500 flex items-center gap-1"><TrendingUp className="h-4 w-4" /> 漲幅排行</CardTitle>

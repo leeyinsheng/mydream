@@ -76,13 +76,13 @@ export default function ScreenerPage() {
   const industries = [...new Set(DATA.map((d) => d.industry))];
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">篩選器</h1>
 
       <Card>
         <CardHeader><CardTitle className="text-base">篩選條件</CardTitle></CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1">
               <label className="text-xs text-muted-foreground uppercase font-semibold">市場</label>
               <select value={market} onChange={(e) => setMarket(e.target.value)}

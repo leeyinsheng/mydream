@@ -60,7 +60,7 @@ export default function ExchangePage() {
   const modalProduct = modal ? PRODUCTS.find((p) => p.id === modal) : null;
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold">兌換商城</h1>
@@ -81,7 +81,7 @@ export default function ExchangePage() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {PRODUCTS.map((p) => (
           <Card key={p.id} className="overflow-hidden flex flex-col">
             <div className="h-32 bg-muted flex items-center justify-center text-3xl">{p.icon}</div>

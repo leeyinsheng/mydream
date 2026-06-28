@@ -16,10 +16,10 @@ export default async function ForexPage() {
   const forex = await getForexRates();
 
   return (
-    <div className="container mx-auto px-4 py-6 space-y-6">
+    <div className="space-y-4">
       <h1 className="text-2xl font-bold">外匯</h1>
       <p className="text-xs text-muted-foreground -mt-2">即時匯率 · 資料來源：ExchangeRate-API</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3">
         {forex.map((item) => (
           <Card key={item.pair}>
             <CardHeader className="pb-2"><CardTitle className="text-sm">{item.pair}</CardTitle></CardHeader>
@@ -34,7 +34,7 @@ export default async function ForexPage() {
         ))}
       </div>
       <h2 className="text-lg font-semibold mt-6 mb-3">各國基準利率</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 gap-2">
         {RATES.map((r) => (
           <Card key={r.country}>
             <CardContent className="p-4 text-center">
