@@ -26,6 +26,9 @@ model User {
   exchangeOrders ExchangeOrder[]
   paymentOrders  PaymentOrder[]
   watchlistItems WatchlistItem[]
+  referralCode   String?         @unique
+  referredById   String?
+  referralCount  Int             @default(0)
 }
 
 model Account {
@@ -136,6 +139,17 @@ model WatchlistItem {
 
   @@unique([userId, symbol])
   @@index([userId])
+}
+
+model ReferralReward {
+  id            String   @id @default(cuid())
+  inviterId     String
+  inviteeId     String
+  pointsAwarded Int      @default(50)
+  createdAt     DateTime @default(now())
+
+  @@unique([inviterId, inviteeId])
+  @@index([inviterId])
 }
 
 model ExchangeOrder {

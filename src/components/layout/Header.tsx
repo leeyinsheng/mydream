@@ -92,6 +92,13 @@ export function Header() {
                 登入 / 註冊
               </Link>
             )}
+            {session && (
+              <Link href="/profile" onClick={() => setMenuOpen(false)}
+                className="block px-3 py-2 rounded-lg text-sm hover:bg-muted"
+              >
+                個人中心
+              </Link>
+            )}
           </div>
         )}
       </header>

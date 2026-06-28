@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
@@ -20,7 +21,7 @@ export default function RegisterPage() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({ email, password, name, referralCode: referralCode.trim() || undefined }),
     });
     if (res.ok) router.push("/login");
     else { const data = await res.json(); setError(data.error || "註冊失敗"); }
@@ -35,6 +36,7 @@ export default function RegisterPage() {
             <Input placeholder="暱稱（選填）" value={name} onChange={(e) => setName(e.target.value)} />
             <Input type="email" placeholder="電子信箱" value={email} onChange={(e) => setEmail(e.target.value)} required />
             <Input type="password" placeholder="密碼（至少 6 碼）" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <Input placeholder="邀請碼（選填）" value={referralCode} onChange={(e) => setReferralCode(e.target.value)} />
             {error && <p className="text-sm text-red-500">{error}</p>}
             <Button type="submit" className="w-full">註冊</Button>
             <p className="text-center text-sm text-muted-foreground">
