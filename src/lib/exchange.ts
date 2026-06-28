@@ -56,7 +56,7 @@ export async function createExchangeOrder(
       data: {
         userId,
         type: "exchange",
-        amount: -pointsSpent,
+        amount: pointsSpent,
         description: `兌換：${product.name}`,
         walletId: wallet.id,
       },

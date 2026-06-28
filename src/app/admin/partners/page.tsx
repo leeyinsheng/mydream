@@ -1,5 +1,9 @@
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Package, Circle } from "lucide-react";
+import { db } from "@/lib/db";
 
 const PARTNERS = [
   { id: "p1", name: "便利超商聯盟", api: "https://partner-api.example.com/convenience", status: "active", date: "2026-01-15", products: [
@@ -19,7 +23,15 @@ const PARTNERS = [
   ]},
 ];
 
-export default function PartnerAdminPage() {
+export default async function PartnerAdminPage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) redirect("/login");
+  const user = await db.user.findUnique({
+    where: { email: session.user.email },
+    select: { role: true },
+  });
+  if (user?.role !== "ADMIN") redirect("/");
+
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">合作夥伴管理</h1>

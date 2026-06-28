@@ -50,10 +50,13 @@ export async function createTransaction(
       if (wallet.balance < amount) {
         throw new Error("Insufficient balance");
       }
-      await tx.wallet.update({
-        where: { id: wallet.id },
+      const result = await tx.wallet.update({
+        where: { id: wallet.id, balance: { gte: amount } },
         data: { balance: { decrement: amount } },
       });
+      if (!result) {
+        throw new Error("Insufficient balance");
+      }
     }
 
     return trx;

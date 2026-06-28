@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPartners } from "@/lib/exchange";
+import { requireAdmin } from "@/lib/auth-utils";
 
 const MOCK_PARTNERS = [
   { id: "p1", name: "便利超商聯盟", apiEndpoint: "https://partner-api.example.com/convenience", status: "active", createdAt: "2026-01-15T00:00:00.000Z", products: [
@@ -21,6 +22,8 @@ const MOCK_PARTNERS = [
 ];
 
 export async function GET() {
+  const adminError = await requireAdmin();
+  if (adminError) return adminError;
   try {
     const partners = await getPartners();
     if (partners.length > 0) return NextResponse.json(partners);

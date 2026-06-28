@@ -225,20 +225,40 @@ const MOCK_NEWS: NewsItem[] = [
   { headline: "Nasdaq 創歷史新高 科技七巨頭領漲", summary: "AI 熱潮持續推動科技股上漲，Nasdaq 指數首次突破 19,000 點大關。", url: "#", source: "CNBC", datetime: Date.now() / 1000 - 21600 },
 ];
 
+const NON_FINANCE_KEYWORDS = [
+  "world cup", "sports", "politics", "election", "hezbollah",
+  "military", "war", "olympics", "soccer", "basketball",
+  "celebrity", "entertainment", "music",
+];
+
+function isFinanceNews(item: NewsItem): boolean {
+  const text = `${item.headline} ${item.summary}`.toLowerCase();
+  return !NON_FINANCE_KEYWORDS.some((kw) => text.includes(kw));
+}
+
 export async function getMarketNews(): Promise<NewsItem[]> {
   const cacheKey = "market:news";
   const cached = await getCached<NewsItem[]>(cacheKey);
   if (cached) return cached;
   if (!FINNHUB_KEY) return MOCK_NEWS;
   try {
-    const url = `${FINNHUB_BASE}/news?category=general&token=${FINNHUB_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) return MOCK_NEWS;
-    const data = await res.json();
-    const items: NewsItem[] = (data || []).slice(0, 8).map((n: Record<string, unknown>) => ({
-      headline: n.headline, summary: n.summary, url: n.url,
-      source: n.source, datetime: n.datetime,
-    }));
+    const symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "2330.TW"];
+    const allItems: NewsItem[] = [];
+    for (const sym of symbols) {
+      const url = `${FINNHUB_BASE}/company-news?symbol=${sym}&from=2026-06-01&to=${new Date().toISOString().split("T")[0]}&token=${FINNHUB_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const data = await res.json();
+      for (const n of (data || []).slice(0, 5)) {
+        if (n.headline && n.url && n.headline !== "") {
+          allItems.push({
+            headline: n.headline, summary: n.summary || "", url: n.url,
+            source: n.source, datetime: n.datetime,
+          });
+        }
+      }
+    }
+    const items = allItems.filter(isFinanceNews).slice(0, 8);
     if (items.length === 0) return MOCK_NEWS;
     await setCache(cacheKey, items, 300000);
     return items;

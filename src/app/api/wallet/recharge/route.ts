@@ -8,6 +8,9 @@ export async function POST(req: Request) {
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "金流功能尚未串接，敬請期待" }, { status: 503 });
+  }
   const userId = (session.user as { id: string }).id;
   const { amount, description } = await req.json();
   if (!amount || amount <= 0) {
