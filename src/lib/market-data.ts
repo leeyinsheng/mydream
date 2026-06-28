@@ -2,6 +2,7 @@ import { getCached, setCache } from "./redis";
 
 const FINNHUB_KEY = process.env.FINNHUB_API_KEY || "";
 const FINNHUB_BASE = "https://finnhub.io/api/v1";
+const FOREX_BASE = "https://open.er-api.com/v6";
 
 export interface Quote {
   symbol: string;
@@ -125,4 +126,47 @@ export async function getMarketNews(): Promise<NewsItem[]> {
     await setCache(cacheKey, items, 300000);
     return items;
   } catch { return MOCK_NEWS; }
+}
+
+export interface ForexPair {
+  pair: string;
+  rate: number;
+}
+
+const FOREX_PAIRS = ["TWD", "JPY", "EUR", "CNY", "GBP", "AUD", "CAD", "KRW"];
+
+const MOCK_FOREX: ForexPair[] = [
+  { pair: "USD/TWD", rate: 32.15 },
+  { pair: "USD/JPY", rate: 151.25 },
+  { pair: "EUR/USD", rate: 1.0852 },
+  { pair: "USD/CNH", rate: 7.246 },
+  { pair: "GBP/USD", rate: 1.268 },
+  { pair: "AUD/USD", rate: 0.657 },
+  { pair: "USD/CAD", rate: 1.362 },
+  { pair: "USD/KRW", rate: 1345.00 },
+];
+
+export async function getForexRates(): Promise<ForexPair[]> {
+  const cacheKey = "forex:rates";
+  const cached = await getCached<ForexPair[]>(cacheKey);
+  if (cached) return cached;
+  try {
+    const res = await fetch(`${FOREX_BASE}/latest/USD`);
+    if (!res.ok) return MOCK_FOREX;
+    const data = await res.json();
+    const rates: Record<string, number> = data.rates || {};
+    const result: ForexPair[] = [];
+    const r = (code: string) => rates[code] || 0;
+    if (r("TWD")) result.push({ pair: "USD/TWD", rate: parseFloat(r("TWD").toFixed(2)) });
+    if (r("JPY")) result.push({ pair: "USD/JPY", rate: parseFloat(r("JPY").toFixed(2)) });
+    if (r("EUR")) result.push({ pair: "EUR/USD", rate: parseFloat((1 / r("EUR")).toFixed(4)) });
+    if (r("CNY")) result.push({ pair: "USD/CNH", rate: parseFloat(r("CNY").toFixed(3)) });
+    if (r("GBP")) result.push({ pair: "GBP/USD", rate: parseFloat((1 / r("GBP")).toFixed(4)) });
+    if (r("AUD")) result.push({ pair: "AUD/USD", rate: parseFloat((1 / r("AUD")).toFixed(4)) });
+    if (r("CAD")) result.push({ pair: "USD/CAD", rate: parseFloat(r("CAD").toFixed(3)) });
+    if (r("KRW")) result.push({ pair: "USD/KRW", rate: parseFloat(r("KRW").toFixed(0)) });
+    if (result.length === 0) return MOCK_FOREX;
+    await setCache(cacheKey, result, 3600000);
+    return result;
+  } catch { return MOCK_FOREX; }
 }

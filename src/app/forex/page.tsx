@@ -1,16 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowUp, ArrowDown } from "lucide-react";
+import { getForexRates } from "@/lib/market-data";
 
-const ITEMS = [
-  { name: "USD/TWD", price: "32.15", change: "+0.1%", positive: true },
-  { name: "EUR/USD", price: "1.0852", change: "-0.3%", positive: false },
-  { name: "GBP/USD", price: "1.2680", change: "+0.2%", positive: true },
-  { name: "USD/JPY", price: "151.25", change: "+0.4%", positive: true },
-  { name: "AUD/USD", price: "0.6570", change: "-0.1%", positive: false },
-  { name: "USD/CAD", price: "1.3620", change: "+0.15%", positive: true },
-  { name: "USD/CNH", price: "7.2460", change: "-0.05%", positive: false },
-  { name: "EUR/JPY", price: "164.10", change: "+0.1%", positive: true },
-];
+export const dynamic = "force-dynamic";
 
 const RATES = [
   { country: "美國 (Fed)", rate: "5.50%" },
@@ -20,19 +12,22 @@ const RATES = [
   { country: "中國 (PBOC)", rate: "3.45%" },
 ];
 
-export default function ForexPage() {
+export default async function ForexPage() {
+  const forex = await getForexRates();
+
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold">外匯</h1>
+      <p className="text-xs text-muted-foreground -mt-2">即時匯率 · 資料來源：ExchangeRate-API</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {ITEMS.map((item) => (
-          <Card key={item.name}>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">{item.name}</CardTitle></CardHeader>
+        {forex.map((item) => (
+          <Card key={item.pair}>
+            <CardHeader className="pb-2"><CardTitle className="text-sm">{item.pair}</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-xl font-bold">{item.price}</p>
-              <div className={`flex items-center gap-1 mt-1 text-sm ${item.positive ? "text-green-500" : "text-red-500"}`}>
-                {item.positive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                {item.change}
+              <p className="text-xl font-bold">{item.rate.toLocaleString()}</p>
+              <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                <ArrowUp className="h-4 w-4" />
+                <span>即時</span>
               </div>
             </CardContent>
           </Card>
