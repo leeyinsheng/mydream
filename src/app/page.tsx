@@ -42,8 +42,6 @@ export default async function HomePage() {
         </section>
       )}
 
-  return (
-    <div className="space-y-4">
       {/* 全球指數 */}
       <section>
         <h2 className="text-sm font-semibold mb-2">全球指數</h2>

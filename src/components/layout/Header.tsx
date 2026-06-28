@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
-import { User, Wallet, Menu, X, ChevronDown } from "lucide-react";
+import { User, Wallet, Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/stocks", label: "股市" },

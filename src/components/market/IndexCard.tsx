@@ -10,7 +10,7 @@ interface IndexCardProps {
   href?: string;
 }
 
-export function IndexCard({ flag, name, country, price, change, changePercent, href }: IndexCardProps) {
+export function IndexCard({ flag, name, price, change, changePercent, href }: IndexCardProps) {
   const isPositive = change >= 0;
   const card = (
     <div className={`rounded-lg border p-2.5 transition-colors ${href ? "active:bg-muted cursor-pointer" : ""} ${isPositive ? "border-green-500/20 bg-green-500/5" : "border-red-500/20 bg-red-500/5"}`}>

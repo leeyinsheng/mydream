@@ -5,8 +5,11 @@ import { db } from "@/lib/db";
 export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json();
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password required" }, { status: 400 });
+    if (!email || typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: "請輸入有效的 Email" }, { status: 400 });
+    }
+    if (!password || typeof password !== "string" || password.length < 6) {
+      return NextResponse.json({ error: "密碼至少 6 個字元" }, { status: 400 });
     }
     const existing = await db.user.findUnique({ where: { email } });
     if (existing) {

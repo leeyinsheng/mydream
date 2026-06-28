@@ -14,7 +14,7 @@ interface Order {
 }
 
 export default function ExchangeOrdersPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,10 +23,8 @@ export default function ExchangeOrdersPage() {
     if (status === "authenticated") {
       fetch("/api/exchange/orders")
         .then((r) => r.json())
-        .then((data) => setOrders(data))
+        .then(setOrders)
         .finally(() => setLoading(false));
-    } else if (status === "unauthenticated") {
-      setLoading(false);
     }
   }, [status]);
 
