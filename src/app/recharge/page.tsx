@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, CreditCard, Banknote, Smartphone, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, Smartphone, AlertCircle } from "lucide-react";
 
 const PRESET_AMOUNTS = [500, 1000, 2000, 5000, 10000];
 const METHODS = [
@@ -17,22 +17,26 @@ const METHODS = [
 export default function RechargePage() {
   const { status } = useSession();
   const router = useRouter();
-  const [step, setStep] = useState<"amount" | "method" | "confirm" | "done" | "error">("amount");
+  const [step, setStep] = useState<"amount" | "method" | "confirm" | "error">("amount");
   const [amount, setAmount] = useState(1000);
   const [customAmount, setCustomAmount] = useState("");
   const [method, setMethod] = useState("credit");
 
   if (status === "unauthenticated") { router.push("/login"); return null; }
 
-  function handleRecharge() {
-    fetch("/api/wallet/recharge", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount, description: method === "credit" ? "信用卡儲值" : method === "atm" ? "ATM轉帳儲值" : "超商繳費儲值" }),
-    })
-      .then((r) => { if (!r.ok) throw new Error("Failed"); return r.json(); })
-      .then(() => setStep("done"))
-      .catch(() => setStep("error"));
+  async function handleRecharge() {
+    try {
+      const res = await fetch("/api/payment/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json();
+      window.location.href = data.paymentUrl;
+    } catch {
+      setStep("error");
+    }
   }
 
   return (
@@ -114,17 +118,6 @@ export default function RechargePage() {
               <Button variant="outline" onClick={() => setStep("method")}>上一步</Button>
               <Button className="flex-1" onClick={handleRecharge}>確認付款</Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {step === "done" && (
-        <Card>
-          <CardContent className="py-12 text-center space-y-4">
-            <Check className="h-12 w-12 mx-auto text-green-500" />
-            <h2 className="text-xl font-bold">儲值成功！</h2>
-            <p className="text-muted-foreground">已成功儲值 NT$ {amount.toLocaleString()} = {amount.toLocaleString()} 點</p>
-            <Button onClick={() => router.push("/wallet")}>查看錢包</Button>
           </CardContent>
         </Card>
       )}
