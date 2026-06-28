@@ -6,6 +6,7 @@ import { SessionProvider } from "@/providers/SessionProvider";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { AdsenseScript } from "@/components/ads/AdsenseScript";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </ThemeProvider>
         </SessionProvider>
         <GoogleAnalytics />
+        <AdsenseScript />
       </body>
     </html>
   );
