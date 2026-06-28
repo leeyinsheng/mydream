@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUp } from "lucide-react";
 import { getForexRates } from "@/lib/market-data";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "外匯即時報價 | FinPulse",
+  description: "美元/台幣、日圓、歐元等主要貨幣對即時匯率，各國央行基準利率一覽。",
+  openGraph: { title: "外匯即時報價 | FinPulse", description: "主要貨幣對即時匯率與各國利率" },
+};
 
 const RATES = [
   { country: "美國 (Fed)", rate: "5.50%" },

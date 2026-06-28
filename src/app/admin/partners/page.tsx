@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Package, Circle } from "lucide-react";
 import { db } from "@/lib/db";
+
+export const metadata: Metadata = {
+  title: "合作夥伴管理 | FinPulse Admin",
+  description: "管理合作夥伴與兌換商品",
+};
 
 const PARTNERS = [
   { id: "p1", name: "便利超商聯盟", api: "https://partner-api.example.com/convenience", status: "active", date: "2026-01-15", products: [

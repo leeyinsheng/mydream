@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,10 @@ export default function CountryDetailPage() {
   const params = useParams();
   const router = useRouter();
   const country = getCountryById(params.id as string);
+
+  useEffect(() => {
+    document.title = country ? `${country.country} 房地產市場分析 | FinPulse` : "FinPulse";
+  }, [country]);
 
   if (!country) {
     return (

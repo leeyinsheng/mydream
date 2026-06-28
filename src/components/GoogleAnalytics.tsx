@@ -1,10 +1,17 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect } from "react";
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 export function GoogleAnalytics() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js");
+    }
+  }, []);
+
   if (!GA_ID) return null;
   return (
     <>

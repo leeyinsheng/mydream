@@ -1,5 +1,7 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import LineProvider from "next-auth/providers/line";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "./db";
 import bcrypt from "bcryptjs";
@@ -22,6 +24,12 @@ export const authOptions: NextAuthOptions = {
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
+    ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
+      ? [GoogleProvider({ clientId: process.env.AUTH_GOOGLE_ID, clientSecret: process.env.AUTH_GOOGLE_SECRET })]
+      : []),
+    ...(process.env.AUTH_LINE_ID && process.env.AUTH_LINE_SECRET
+      ? [LineProvider({ clientId: process.env.AUTH_LINE_ID, clientSecret: process.env.AUTH_LINE_SECRET })]
+      : []),
   ],
   session: { strategy: "jwt" },
   callbacks: {

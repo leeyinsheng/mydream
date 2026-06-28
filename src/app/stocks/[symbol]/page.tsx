@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,18 @@ const RANGES = [
 interface Props {
   params: Promise<{ symbol: string }>;
   searchParams: Promise<{ range?: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { symbol } = await params;
+  const decoded = decodeURIComponent(symbol);
+  const quote = await getQuote(decoded);
+  const name = quote?.name || decoded;
+  return {
+    title: `${name} 股價走勢 K線圖 | FinPulse`,
+    description: `${name} 即時股價、K線圖、技術分析 — 最新價 ${quote?.price?.toLocaleString() || ""}，漲跌 ${quote?.changePercent ? (quote.changePercent >= 0 ? "+" : "") + quote.changePercent.toFixed(2) + "%" : ""}`,
+    openGraph: { title: `${name} 股價走勢 | FinPulse`, description: `${name} 即時股價與技術分析` },
+  };
 }
 
 export default async function StockDetailPage({ params, searchParams }: Props) {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { IndexCard } from "@/components/market/IndexCard";
@@ -5,10 +6,19 @@ import { GainersLosers } from "@/components/market/GainersLosers";
 import { NewsFeed } from "@/components/market/NewsFeed";
 import { CommodityForexBar } from "@/components/market/CommodityForexBar";
 import { getGlobalIndices, getMarketOverview, getMarketNews } from "@/lib/market-data";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = {
+  title: "FinPulse - 免費全球股市、外匯、原物料分析工具",
+  description: "即時全球指數、台股漲跌排行、外匯匯率、原物料價格 — 免費投資分析平台，專為手機用戶設計。",
+  openGraph: { title: "FinPulse - 免費全球股市分析", description: "即時全球指數、台股漲跌排行，免費投資分析平台" },
+};
+
 export default async function HomePage() {
+  const session = await getServerSession(authOptions);
   const [indices, overview, news] = await Promise.all([
     getGlobalIndices(),
     getMarketOverview(),
@@ -16,6 +26,21 @@ export default async function HomePage() {
   ]);
   const headline = news[0];
   const restNews = news.slice(1);
+
+  return (
+    <div className="space-y-4">
+      {!session && (
+        <section className="bg-gradient-to-br from-primary/10 via-background to-primary/5 rounded-xl p-6 text-center space-y-3">
+          <h2 className="text-xl font-bold">免費全球股市、外匯、原物料分析工具</h2>
+          <p className="text-sm text-muted-foreground">加入 FinPulse，掌握市場脈動</p>
+          <Link href="/register">
+            <button className="bg-primary text-primary-foreground px-6 py-2.5 rounded-lg font-semibold text-sm">
+              免費註冊
+            </button>
+          </Link>
+          <p className="text-xs text-muted-foreground">或 <Link href="/login" className="text-primary underline">登入</Link></p>
+        </section>
+      )}
 
   return (
     <div className="space-y-4">

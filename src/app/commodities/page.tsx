@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, TrendingDown } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "原物料即時報價 | FinPulse",
+  description: "黃金、白銀、原油、天然氣、農產品等原物料即時價格走勢與漲跌。",
+  openGraph: { title: "原物料即時報價 | FinPulse", description: "黃金、白銀、原油等原物料即時價格" },
+};
 
 const ITEMS = [
   { name: "黃金 (XAU/USD)", price: "2,350.50", change: "+0.5%", positive: true },
