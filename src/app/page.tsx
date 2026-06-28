@@ -45,6 +45,10 @@ export default async function HomePage() {
 
       <WatchlistSection />
 
+      {session?.user?.name && (
+        <p className="text-sm text-muted-foreground">嗨，{session.user.name}</p>
+      )}
+
       {/* 全球指數 */}
       <section>
         <h2 className="text-sm font-semibold mb-2">全球指數</h2>
