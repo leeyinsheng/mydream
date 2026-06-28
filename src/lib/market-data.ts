@@ -139,7 +139,7 @@ export interface IndexInfo {
 
 const GLOBAL_INDICES: IndexInfo[] = [
   { symbol: "^TWII", name: "台股加權", country: "台灣", flag: "🇹🇼" },
-  { symbol: "^GSPC", name: "S&P 500", country: "美國", flag: "🇺🇸" },
+  { symbol: "^GSPC", name: "標普500", country: "美國", flag: "🇺🇸" },
   { symbol: "^IXIC", name: "NASDAQ", country: "美國", flag: "🇺🇸" },
   { symbol: "^DJI", name: "道瓊工業", country: "美國", flag: "🇺🇸" },
   { symbol: "^N225", name: "日經225", country: "日本", flag: "🇯🇵" },
@@ -158,7 +158,7 @@ export interface IndexQuote extends Quote {
 
 const MOCK_INDICES: IndexQuote[] = [
   { symbol: "^TWII", name: "台股加權", country: "台灣", flag: "🇹🇼", price: 21850, change: 268, changePercent: 1.24, high: 21900, low: 21600, open: 21582, previousClose: 21582 },
-  { symbol: "^GSPC", name: "S&P 500", country: "美國", flag: "🇺🇸", price: 5420, change: 44, changePercent: 0.82, high: 5440, low: 5380, open: 5376, previousClose: 5376 },
+  { symbol: "^GSPC", name: "標普500", country: "美國", flag: "🇺🇸", price: 5420, change: 44, changePercent: 0.82, high: 5440, low: 5380, open: 5376, previousClose: 5376 },
   { symbol: "^IXIC", name: "NASDAQ", country: "美國", flag: "🇺🇸", price: 19012, change: 236, changePercent: 1.18, high: 19100, low: 18800, open: 18776, previousClose: 18776 },
   { symbol: "^DJI", name: "道瓊工業", country: "美國", flag: "🇺🇸", price: 39450, change: 126, changePercent: 0.32, high: 39600, low: 39300, open: 39324, previousClose: 39324 },
   { symbol: "^N225", name: "日經225", country: "日本", flag: "🇯🇵", price: 39842, change: -185, changePercent: -0.46, high: 40100, low: 39700, open: 40027, previousClose: 40027 },
