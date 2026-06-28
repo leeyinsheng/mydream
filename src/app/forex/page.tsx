@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import { getForexRates } from "@/lib/market-data";
 
 export const dynamic = "force-dynamic";
@@ -18,19 +19,21 @@ export default async function ForexPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">外匯</h1>
-      <p className="text-xs text-muted-foreground -mt-2">即時匯率 · 資料來源：ExchangeRate-API</p>
+      <p className="text-xs text-muted-foreground -mt-2">即時匯率 · 資料來源：ExchangeRate-API · 點擊看走勢</p>
       <div className="grid grid-cols-2 gap-3">
         {forex.map((item) => (
-          <Card key={item.pair}>
-            <CardHeader className="pb-2"><CardTitle className="text-sm">{item.pair}</CardTitle></CardHeader>
-            <CardContent>
-              <p className="text-xl font-bold">{item.rate.toLocaleString()}</p>
-              <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
-                <ArrowUp className="h-4 w-4" />
-                <span>即時</span>
-              </div>
-            </CardContent>
-          </Card>
+          <Link key={item.pair} href={`/stocks/${encodeURIComponent(item.yahoosym)}?range=1mo`}>
+            <Card className="active:bg-muted transition-colors">
+              <CardHeader className="pb-2"><CardTitle className="text-sm">{item.pair}</CardTitle></CardHeader>
+              <CardContent>
+                <p className="text-xl font-bold">{item.rate.toLocaleString()}</p>
+                <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
+                  <ArrowUp className="h-4 w-4" />
+                  <span>即時</span>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
       <h2 className="text-lg font-semibold mt-6 mb-3">各國基準利率</h2>

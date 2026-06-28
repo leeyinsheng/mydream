@@ -1,21 +1,34 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockChart } from "@/components/chart/StockChart";
 import { getQuote, getCandles } from "@/lib/market-data";
 
 export const dynamic = "force-dynamic";
 
+const RANGES = [
+  { label: "當日", range: "1d" },
+  { label: "本週", range: "5d" },
+  { label: "本月", range: "1mo" },
+  { label: "3月", range: "3mo" },
+  { label: "1年", range: "1y" },
+  { label: "10年", range: "10y" },
+];
+
 interface Props {
   params: Promise<{ symbol: string }>;
+  searchParams: Promise<{ range?: string }>;
 }
 
-export default async function StockDetailPage({ params }: Props) {
+export default async function StockDetailPage({ params, searchParams }: Props) {
   const { symbol } = await params;
+  const { range: rangeParam } = await searchParams;
   const decoded = decodeURIComponent(symbol);
+  const range = rangeParam || "6mo";
 
   const [quote, candles] = await Promise.all([
     getQuote(decoded),
-    getCandles(decoded, "6mo"),
+    getCandles(decoded, range),
   ]);
 
   if (!quote && candles.length === 0) {
@@ -25,7 +38,7 @@ export default async function StockDetailPage({ params }: Props) {
   const name = quote?.name || decoded;
   const items = quote ? [
     { label: "最新價", value: quote.price.toLocaleString(), bold: true },
-    { label: "漲跌", value: `${quote.change >= 0 ? "+" : ""}${quote.change.toFixed(2)} (${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%)`, color: quote.change >= 0 ? "text-green-500" : "text-red-500" },
+    { label: "漲跌", value: `${quote.change >= 0 ? "+" : ""}${quote.change.toFixed(2)} (${quote.changePercent >= 0 ? "+" : ""}${quote.changePercent.toFixed(2)}%)` },
     { label: "開盤", value: quote.open.toLocaleString() },
     { label: "最高", value: quote.high.toLocaleString() },
     { label: "最低", value: quote.low.toLocaleString() },
@@ -38,14 +51,31 @@ export default async function StockDetailPage({ params }: Props) {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">K線圖</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm">走勢圖</CardTitle>
+            <div className="flex gap-0.5">
+              {RANGES.map((r) => (
+                <Link
+                  key={r.range}
+                  href={`/stocks/${encodeURIComponent(decoded)}?range=${r.range}`}
+                  className={`px-2 py-1 rounded text-xs transition-colors ${
+                    range === r.range
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "bg-muted hover:bg-muted/80"
+                  }`}
+                >
+                  {r.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {candles.length > 0 ? (
-            <StockChart data={candles} height={350} showMA={true} />
+            <StockChart data={candles} height={350} showMA={range !== "1d" && range !== "5d"} />
           ) : (
             <div className="h-[350px] flex items-center justify-center text-muted-foreground text-sm">
-              尚無 K 線資料
+              尚無走勢資料
             </div>
           )}
         </CardContent>
@@ -54,7 +84,7 @@ export default async function StockDetailPage({ params }: Props) {
       {items.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">指數資訊</CardTitle>
+            <CardTitle className="text-sm">報價資訊</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">

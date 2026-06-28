@@ -248,17 +248,29 @@ export async function getMarketNews(): Promise<NewsItem[]> {
 export interface ForexPair {
   pair: string;
   rate: number;
+  yahoosym: string;
 }
 
+const FOREX_INFO: { pair: string; yahoosym: string; currency: string }[] = [
+  { pair: "USD/TWD", yahoosym: "USDTWD=X", currency: "TWD" },
+  { pair: "USD/JPY", yahoosym: "USDJPY=X", currency: "JPY" },
+  { pair: "EUR/USD", yahoosym: "EURUSD=X", currency: "EUR" },
+  { pair: "USD/CNH", yahoosym: "USDCNY=X", currency: "CNY" },
+  { pair: "GBP/USD", yahoosym: "GBPUSD=X", currency: "GBP" },
+  { pair: "AUD/USD", yahoosym: "AUDUSD=X", currency: "AUD" },
+  { pair: "USD/CAD", yahoosym: "USDCAD=X", currency: "CAD" },
+  { pair: "USD/KRW", yahoosym: "USDKRW=X", currency: "KRW" },
+];
+
 const MOCK_FOREX: ForexPair[] = [
-  { pair: "USD/TWD", rate: 32.15 },
-  { pair: "USD/JPY", rate: 151.25 },
-  { pair: "EUR/USD", rate: 1.0852 },
-  { pair: "USD/CNH", rate: 7.246 },
-  { pair: "GBP/USD", rate: 1.268 },
-  { pair: "AUD/USD", rate: 0.657 },
-  { pair: "USD/CAD", rate: 1.362 },
-  { pair: "USD/KRW", rate: 1345.00 },
+  { pair: "USD/TWD", rate: 32.15, yahoosym: "USDTWD=X" },
+  { pair: "USD/JPY", rate: 151.25, yahoosym: "USDJPY=X" },
+  { pair: "EUR/USD", rate: 1.0852, yahoosym: "EURUSD=X" },
+  { pair: "USD/CNH", rate: 7.246, yahoosym: "USDCNY=X" },
+  { pair: "GBP/USD", rate: 1.268, yahoosym: "GBPUSD=X" },
+  { pair: "AUD/USD", rate: 0.657, yahoosym: "AUDUSD=X" },
+  { pair: "USD/CAD", rate: 1.362, yahoosym: "USDCAD=X" },
+  { pair: "USD/KRW", rate: 1345.00, yahoosym: "USDKRW=X" },
 ];
 
 export async function getForexRates(): Promise<ForexPair[]> {
@@ -272,14 +284,15 @@ export async function getForexRates(): Promise<ForexPair[]> {
     const rates: Record<string, number> = data.rates || {};
     const result: ForexPair[] = [];
     const r = (code: string) => rates[code] || 0;
-    if (r("TWD")) result.push({ pair: "USD/TWD", rate: parseFloat(r("TWD").toFixed(2)) });
-    if (r("JPY")) result.push({ pair: "USD/JPY", rate: parseFloat(r("JPY").toFixed(2)) });
-    if (r("EUR")) result.push({ pair: "EUR/USD", rate: parseFloat((1 / r("EUR")).toFixed(4)) });
-    if (r("CNY")) result.push({ pair: "USD/CNH", rate: parseFloat(r("CNY").toFixed(3)) });
-    if (r("GBP")) result.push({ pair: "GBP/USD", rate: parseFloat((1 / r("GBP")).toFixed(4)) });
-    if (r("AUD")) result.push({ pair: "AUD/USD", rate: parseFloat((1 / r("AUD")).toFixed(4)) });
-    if (r("CAD")) result.push({ pair: "USD/CAD", rate: parseFloat(r("CAD").toFixed(3)) });
-    if (r("KRW")) result.push({ pair: "USD/KRW", rate: parseFloat(r("KRW").toFixed(0)) });
+    for (const info of FOREX_INFO) {
+      const rate = r(info.currency);
+      if (!rate) continue;
+      const fixed = info.pair.startsWith("EUR/") || info.pair.startsWith("GBP/") || info.pair.startsWith("AUD/")
+        ? parseFloat((1 / rate).toFixed(4))
+        : info.pair === "USD/KRW" ? parseFloat(rate.toFixed(0))
+        : parseFloat(rate.toFixed(2));
+      result.push({ pair: info.pair, rate: fixed, yahoosym: info.yahoosym });
+    }
     if (result.length === 0) return MOCK_FOREX;
     await setCache(cacheKey, result, 3600000);
     return result;
