@@ -5,14 +5,14 @@ import { getQuote } from "@/lib/market-data";
 export const dynamic = "force-dynamic";
 
 export default async function StocksPage() {
-  const quote = await getQuote("2330.TW");
+  const quote = await getQuote("AAPL");
 
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
       <h1 className="text-2xl font-bold">股市</h1>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         <Card className="lg:col-span-3">
-          <CardHeader><CardTitle className="text-base">台積電 (2330.TW)</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-base">Apple (AAPL)</CardTitle></CardHeader>
           <CardContent><StockChartView /></CardContent>
         </Card>
         <Card>
