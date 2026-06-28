@@ -2,6 +2,7 @@ import { getCached, setCache } from "./redis";
 
 const FINNHUB_KEY = process.env.FINNHUB_API_KEY || "";
 const FINNHUB_BASE = "https://finnhub.io/api/v1";
+const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
 const FOREX_BASE = "https://open.er-api.com/v6";
 
 export interface Quote {
@@ -13,6 +14,15 @@ export interface Quote {
   low: number;
   open: number;
   previousClose: number;
+  name?: string;
+}
+
+export interface CandleData {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
 }
 
 const TW_STOCKS = [
@@ -20,31 +30,62 @@ const TW_STOCKS = [
   "2881.TW", "2882.TW", "2412.TW", "2303.TW", "2002.TW",
 ];
 
-interface FinnhubQuote {
-  c: number; d: number; dp: number;
-  h: number; l: number; o: number; pc: number;
+interface YahooResult {
+  meta: {
+    symbol: string;
+    regularMarketPrice: number;
+    chartPreviousClose: number;
+    regularMarketDayHigh: number;
+    regularMarketDayLow: number;
+    longName?: string;
+    shortName?: string;
+  };
+  timestamp: number[];
+  indicators: {
+    quote: Array<{
+      open: (number | null)[];
+      high: (number | null)[];
+      low: (number | null)[];
+      close: (number | null)[];
+    }>;
+  };
 }
 
-async function fetchFinnhubQuote(symbol: string): Promise<FinnhubQuote | null> {
-  const cacheKey = `quote:${symbol}`;
-  const cached = await getCached<FinnhubQuote>(cacheKey);
+async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promise<YahooResult | null> {
+  const cacheKey = `yahoo:${symbol}:${range}:${interval}`;
+  const cached = await getCached<YahooResult>(cacheKey);
   if (cached) return cached;
   try {
-    const url = `${FINNHUB_BASE}/quote?symbol=${symbol}&token=${FINNHUB_KEY}`;
-    const res = await fetch(url);
+    const url = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}&includePrePost=false`;
+    const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
     if (!res.ok) return null;
-    const data: FinnhubQuote = await res.json();
-    if (!data.c) return null;
-    await setCache(cacheKey, data, 60000);
-    return data;
+    const json = await res.json();
+    const result = json.chart?.result?.[0];
+    if (!result) return null;
+    await setCache(cacheKey, result, 60000);
+    return result;
   } catch { return null; }
 }
 
 export async function getQuote(symbol: string): Promise<Quote | null> {
-  const raw = await fetchFinnhubQuote(symbol);
+  const raw = await fetchYahoo(symbol, "1d");
   if (!raw) return null;
-  return { symbol, price: raw.c, change: raw.d, changePercent: raw.dp,
-    high: raw.h, low: raw.l, open: raw.o, previousClose: raw.pc };
+  const m = raw.meta;
+  const price = m.regularMarketPrice;
+  const prev = m.chartPreviousClose;
+  const change = price - prev;
+  const changePercent = prev ? (change / prev) * 100 : 0;
+  return {
+    symbol,
+    price,
+    change,
+    changePercent,
+    high: m.regularMarketDayHigh,
+    low: m.regularMarketDayLow,
+    open: prev,
+    previousClose: prev,
+    name: m.longName || m.shortName,
+  };
 }
 
 export async function getMultipleQuotes(symbols: string[]): Promise<Quote[]> {
@@ -54,25 +95,83 @@ export async function getMultipleQuotes(symbols: string[]): Promise<Quote[]> {
     .map((r) => (r as PromiseFulfilledResult<Quote>).value);
 }
 
-const MOCK_MARKET_OVERVIEW = {
-  twMarket: [
-    { symbol: "2330.TW", price: 784.00, change: 16.50, changePercent: 2.15, high: 790, low: 778, open: 772, previousClose: 767.5 },
-    { symbol: "2317.TW", price: 152.50, change: 1.00, changePercent: 0.66, high: 154, low: 151, open: 151.5, previousClose: 151.5 },
-    { symbol: "2454.TW", price: 1185.00, change: 35.00, changePercent: 3.04, high: 1195, low: 1165, open: 1150, previousClose: 1150 },
-    { symbol: "2382.TW", price: 285.50, change: -3.50, changePercent: -1.21, high: 290, low: 283, open: 289, previousClose: 289 },
-    { symbol: "2308.TW", price: 338.00, change: -4.00, changePercent: -1.18, high: 344, low: 336, open: 342, previousClose: 342 },
-    { symbol: "2881.TW", price: 72.80, change: 1.20, changePercent: 1.68, high: 73.5, low: 72.0, open: 71.6, previousClose: 71.6 },
-    { symbol: "2882.TW", price: 58.50, change: -0.30, changePercent: -0.51, high: 59, low: 58, open: 58.8, previousClose: 58.8 },
-    { symbol: "2412.TW", price: 125.00, change: -0.50, changePercent: -0.42, high: 126, low: 124.5, open: 125.5, previousClose: 125.5 },
-    { symbol: "2303.TW", price: 52.30, change: -0.45, changePercent: -0.85, high: 53, low: 52, open: 52.75, previousClose: 52.75 },
-    { symbol: "2002.TW", price: 24.50, change: -0.15, changePercent: -0.61, high: 24.8, low: 24.3, open: 24.65, previousClose: 24.65 },
-  ],
-  usIndices: {
-    spy: { symbol: "SPY", price: 542.18, change: 4.42, changePercent: 0.82, high: 544, low: 538, open: 537.76, previousClose: 537.76 },
-    qqq: { symbol: "QQQ", price: 486.50, change: 5.80, changePercent: 1.18, high: 488, low: 481, open: 480.70, previousClose: 480.70 },
-    dia: { symbol: "DIA", price: 394.50, change: 1.26, changePercent: 0.32, high: 396, low: 393, open: 393.24, previousClose: 393.24 },
-  },
+export async function getCandles(symbol: string, range = "6mo"): Promise<CandleData[]> {
+  const raw = await fetchYahoo(symbol, range, "1d");
+  if (!raw) return [];
+  const quotes = raw.indicators.quote[0];
+  return raw.timestamp
+    .map((t, i) => {
+      const o = quotes.open[i];
+      const h = quotes.high[i];
+      const l = quotes.low[i];
+      const c = quotes.close[i];
+      if (o === null || h === null || l === null || c === null) return null;
+      return {
+        time: new Date(t * 1000).toISOString().split("T")[0],
+        open: o,
+        high: h,
+        low: l,
+        close: c,
+      };
+    })
+    .filter((d): d is CandleData => d !== null);
+}
+
+const MOCK_TW_STOCKS = [
+  { symbol: "2330.TW", price: 2340, change: 70, changePercent: 3.08, high: 2370, low: 2325, open: 2270, previousClose: 2270 },
+  { symbol: "2317.TW", price: 152.50, change: 1.00, changePercent: 0.66, high: 154, low: 151, open: 151.5, previousClose: 151.5 },
+  { symbol: "2454.TW", price: 1185.00, change: 35.00, changePercent: 3.04, high: 1195, low: 1165, open: 1150, previousClose: 1150 },
+  { symbol: "2382.TW", price: 285.50, change: -3.50, changePercent: -1.21, high: 290, low: 283, open: 289, previousClose: 289 },
+  { symbol: "2308.TW", price: 338.00, change: -4.00, changePercent: -1.18, high: 344, low: 336, open: 342, previousClose: 342 },
+  { symbol: "2881.TW", price: 72.80, change: 1.20, changePercent: 1.68, high: 73.5, low: 72.0, open: 71.6, previousClose: 71.6 },
+  { symbol: "2882.TW", price: 58.50, change: -0.30, changePercent: -0.51, high: 59, low: 58, open: 58.8, previousClose: 58.8 },
+  { symbol: "2412.TW", price: 125.00, change: -0.50, changePercent: -0.42, high: 126, low: 124.5, open: 125.5, previousClose: 125.5 },
+  { symbol: "2303.TW", price: 52.30, change: -0.45, changePercent: -0.85, high: 53, low: 52, open: 52.75, previousClose: 52.75 },
+  { symbol: "2002.TW", price: 24.50, change: -0.15, changePercent: -0.61, high: 24.8, low: 24.3, open: 24.65, previousClose: 24.65 },
+];
+
+const MOCK_US_INDICES = {
+  spy: { symbol: "SPY", price: 542.18, change: 4.42, changePercent: 0.82, high: 544, low: 538, open: 537.76, previousClose: 537.76 },
+  qqq: { symbol: "QQQ", price: 486.50, change: 5.80, changePercent: 1.18, high: 488, low: 481, open: 480.70, previousClose: 480.70 },
+  dia: { symbol: "DIA", price: 394.50, change: 1.26, changePercent: 0.32, high: 396, low: 393, open: 393.24, previousClose: 393.24 },
 };
+
+export async function getMarketOverview() {
+  const [twResults, spyRaw, qqqRaw, diaRaw] = await Promise.all([
+    getMultipleQuotes(TW_STOCKS),
+    fetchYahoo("SPY"), fetchYahoo("QQQ"), fetchYahoo("DIA"),
+  ]);
+
+  const toQuote = (raw: YahooResult | null, sym: string): Quote | null => {
+    if (!raw || !raw.meta.regularMarketPrice) return null;
+    const m = raw.meta;
+    const price = m.regularMarketPrice;
+    const prev = m.chartPreviousClose;
+    return {
+      symbol: sym,
+      price,
+      change: price - prev,
+      changePercent: prev ? ((price - prev) / prev) * 100 : 0,
+      high: m.regularMarketDayHigh,
+      low: m.regularMarketDayLow,
+      open: prev,
+      previousClose: prev,
+    };
+  };
+
+  return {
+    twMarket: twResults.length > 0 ? twResults : MOCK_TW_STOCKS,
+    usIndices: {
+      spy: toQuote(spyRaw, "SPY") || MOCK_US_INDICES.spy,
+      qqq: toQuote(qqqRaw, "QQQ") || MOCK_US_INDICES.qqq,
+      dia: toQuote(diaRaw, "DIA") || MOCK_US_INDICES.dia,
+    },
+  };
+}
+
+export interface NewsItem {
+  headline: string; summary: string; url: string; source: string; datetime: number;
+}
 
 const MOCK_NEWS: NewsItem[] = [
   { headline: "台積電 3nm 製程產能滿載 Q3 營收上看 EPS 45 元", summary: "台積電先進製程需求旺盛，3nm 產能利用率維持高檔，法人預估 Q3 獲利可望再創新高。", url: "#", source: "鉅亨網", datetime: Date.now() / 1000 - 3600 },
@@ -82,31 +181,6 @@ const MOCK_NEWS: NewsItem[] = [
   { headline: "台灣 5 月出口年增 12.3% AI 供應鏈持續暢旺", summary: "財政部公布 5 月出口統計，受惠於 AI 晶片與伺服器需求，出口表現優於預期。", url: "#", source: "經濟日報", datetime: Date.now() / 1000 - 18000 },
   { headline: "Nasdaq 創歷史新高 科技七巨頭領漲", summary: "AI 熱潮持續推動科技股上漲，Nasdaq 指數首次突破 19,000 點大關。", url: "#", source: "CNBC", datetime: Date.now() / 1000 - 21600 },
 ];
-
-export async function getMarketOverview() {
-  if (!FINNHUB_KEY) return MOCK_MARKET_OVERVIEW;
-  const [twQuotes, spyQuote, qqqQuote, diaQuote] = await Promise.all([
-    getMultipleQuotes(TW_STOCKS),
-    fetchFinnhubQuote("SPY"), fetchFinnhubQuote("QQQ"), fetchFinnhubQuote("DIA"),
-  ]);
-  const toQ = (raw: FinnhubQuote | null, sym: string) => raw ? {
-    symbol: sym, price: raw.c, change: raw.d, changePercent: raw.dp,
-    high: raw.h, low: raw.l, open: raw.o, previousClose: raw.pc,
-  } : null;
-  const result = {
-    twMarket: twQuotes.length > 0 ? twQuotes : MOCK_MARKET_OVERVIEW.twMarket,
-    usIndices: {
-      spy: toQ(spyQuote, "SPY") || MOCK_MARKET_OVERVIEW.usIndices.spy,
-      qqq: toQ(qqqQuote, "QQQ") || MOCK_MARKET_OVERVIEW.usIndices.qqq,
-      dia: toQ(diaQuote, "DIA") || MOCK_MARKET_OVERVIEW.usIndices.dia,
-    },
-  };
-  return result;
-}
-
-export interface NewsItem {
-  headline: string; summary: string; url: string; source: string; datetime: number;
-}
 
 export async function getMarketNews(): Promise<NewsItem[]> {
   const cacheKey = "market:news";
@@ -132,8 +206,6 @@ export interface ForexPair {
   pair: string;
   rate: number;
 }
-
-const FOREX_PAIRS = ["TWD", "JPY", "EUR", "CNY", "GBP", "AUD", "CAD", "KRW"];
 
 const MOCK_FOREX: ForexPair[] = [
   { pair: "USD/TWD", rate: 32.15 },
