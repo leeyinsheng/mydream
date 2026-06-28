@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockChart } from "@/components/chart/StockChart";
 import { getQuote, getCandles } from "@/lib/market-data";
+import { WatchlistStar } from "@/components/watchlist/WatchlistStar";
 
 export const dynamic = "force-dynamic";
 
@@ -60,7 +61,10 @@ export default async function StockDetailPage({ params, searchParams }: Props) {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">{name}</h1>
+      <div className="flex items-center gap-2">
+        <h1 className="text-xl font-bold flex-1">{name}</h1>
+        <WatchlistStar symbol={decoded} name={name} type="stock" />
+      </div>
 
       <Card>
         <CardHeader className="pb-2">

@@ -25,6 +25,7 @@ model User {
   transactions   Transaction[]
   exchangeOrders ExchangeOrder[]
   paymentOrders  PaymentOrder[]
+  watchlistItems WatchlistItem[]
 }
 
 model Account {
@@ -121,6 +122,20 @@ model PaymentOrder {
 
   @@index([userId])
   @@index([status])
+}
+
+model WatchlistItem {
+  id      String   @id @default(cuid())
+  userId  String
+  symbol  String
+  name    String
+  type    String
+  order   Int      @default(0)
+  addedAt DateTime @default(now())
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, symbol])
+  @@index([userId])
 }
 
 model ExchangeOrder {

@@ -8,6 +8,7 @@ import { CommodityForexBar } from "@/components/market/CommodityForexBar";
 import { getGlobalIndices, getMarketOverview, getMarketNews } from "@/lib/market-data";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { WatchlistSection } from "@/components/watchlist/WatchlistSection";
 
 export const dynamic = "force-dynamic";
 
@@ -42,16 +43,19 @@ export default async function HomePage() {
         </section>
       )}
 
+      <WatchlistSection />
+
       {/* 全球指數 */}
       <section>
         <h2 className="text-sm font-semibold mb-2">全球指數</h2>
         <div className="grid grid-cols-2 gap-2">
           {indices.map((idx) => (
-            <IndexCard
+              <IndexCard
               key={idx.symbol}
               flag={idx.flag}
               name={idx.name}
               country={idx.country}
+              symbol={idx.symbol}
               price={idx.price}
               change={idx.change}
               changePercent={idx.changePercent}
