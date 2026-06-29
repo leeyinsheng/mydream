@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import { Prisma } from "@prisma/client";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { db } from "@/lib/db";
 
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
     if (!user) throw new Error("Failed to create user");
 
     if (referredById && user.id !== referredById) {
-      await db.$transaction(async (tx) => {
+      await db.$transaction(async (tx: Prisma.TransactionClient) => {
         await tx.referralReward.create({
           data: { inviterId: referredById, inviteeId: user.id, pointsAwarded: 50 },
         });
