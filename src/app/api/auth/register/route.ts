@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
-import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { db } from "@/lib/db";
 
 async function generateReferralCode(): Promise<string> {
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
         });
         break;
       } catch (e) {
-        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002" && attempt < 4) continue;
+        if (e instanceof PrismaClientKnownRequestError && e.code === "P2002" && attempt < 4) continue;
         throw e;
       }
     }
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id: user.id, email: user.email, name: user.name });
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+    if (e instanceof PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ error: "Email 或推薦碼重複" }, { status: 409 });
     }
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
