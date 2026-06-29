@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { db } from "@/lib/db";
-import { createTransaction } from "@/lib/wallet";
 
 async function generateReferralCode(): Promise<string> {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   for (let attempt = 0; attempt < 10; attempt++) {
     let code = "FIN-";
-    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    const bytes = randomBytes(6);
+    for (let i = 0; i < 6; i++) code += chars[bytes[i] % chars.length];
     const existing = await db.user.findUnique({ where: { referralCode: code } });
     if (!existing) return code;
   }
@@ -47,14 +48,53 @@ export async function POST(req: Request) {
     });
 
     if (referredById && user.id !== referredById) {
-      await db.referralReward.create({
-        data: { inviterId: referredById, inviteeId: user.id },
-      });
-      await createTransaction(referredById, "deposit", 50, "邀請獎勵");
-      await createTransaction(user.id, "deposit", 50, "註冊獎勵");
-      await db.user.update({
-        where: { id: referredById },
-        data: { referralCount: { increment: 1 } },
+      await db.$transaction(async (tx) => {
+        await tx.referralReward.create({
+          data: { inviterId: referredById, inviteeId: user.id },
+        });
+
+        const inviterWallet = await tx.wallet.upsert({
+          where: { userId: referredById },
+          create: { userId: referredById, balance: 0 },
+          update: {},
+        });
+        await tx.transaction.create({
+          data: {
+            userId: referredById,
+            type: "deposit",
+            amount: 50,
+            description: "邀請獎勵",
+            walletId: inviterWallet.id,
+          },
+        });
+        await tx.wallet.update({
+          where: { id: inviterWallet.id },
+          data: { balance: { increment: 50 } },
+        });
+
+        const userWallet = await tx.wallet.upsert({
+          where: { userId: user.id },
+          create: { userId: user.id, balance: 0 },
+          update: {},
+        });
+        await tx.transaction.create({
+          data: {
+            userId: user.id,
+            type: "deposit",
+            amount: 50,
+            description: "註冊獎勵",
+            walletId: userWallet.id,
+          },
+        });
+        await tx.wallet.update({
+          where: { id: userWallet.id },
+          data: { balance: { increment: 50 } },
+        });
+
+        await tx.user.update({
+          where: { id: referredById },
+          data: { referralCount: { increment: 1 } },
+        });
       });
     }
 

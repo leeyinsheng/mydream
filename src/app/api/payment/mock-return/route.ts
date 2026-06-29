@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import { createTransaction } from "@/lib/wallet";
 
 export async function GET(req: Request) {
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.MOCK_PAYMENT_ENABLED !== "true") {
     return NextResponse.json({ error: "Not available" }, { status: 404 });
   }
 
