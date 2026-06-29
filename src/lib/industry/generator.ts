@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client"
 import { db } from "@/lib/db"
 import { INDUSTRIES } from "./config"
 import { fetchIndustryNews } from "@/lib/news/fetcher"
@@ -127,7 +126,7 @@ export async function generateIndustryAnalysis(): Promise<void> {
         updatedAt: new Date().toISOString(),
       }
 
-      const jsonContent = JSON.parse(JSON.stringify(content)) as Prisma.InputJsonValue
+      const jsonContent = JSON.parse(JSON.stringify(content))
       await db.industryAnalysis.upsert({
         where: { industry: ind.key },
         update: { content: jsonContent },
