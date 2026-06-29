@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "./db";
 
 export async function getOrCreateWallet(userId: string) {
@@ -24,7 +25,7 @@ export async function createTransaction(
   amount: number,
   description?: string
 ) {
-  return db.$transaction(async (tx) => {
+  return db.$transaction(async (tx: Prisma.TransactionClient) => {
     const wallet = await tx.wallet.upsert({
       where: { userId },
       create: { userId, balance: 0 },

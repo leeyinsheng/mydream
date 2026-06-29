@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { db } from "./db";
 
 export async function getProducts() {
@@ -20,7 +21,7 @@ export async function createExchangeOrder(
   productId: string,
   pointsSpent: number
 ) {
-  return db.$transaction(async (tx) => {
+  return db.$transaction(async (tx: Prisma.TransactionClient) => {
     const wallet = await tx.wallet.findUnique({ where: { userId } });
     if (!wallet || wallet.balance < pointsSpent) {
       throw new Error("Insufficient balance");
