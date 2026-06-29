@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 
 async function generateReferralCode(): Promise<string> {
@@ -36,21 +37,31 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const user = await db.user.create({
-      data: {
-        email,
-        passwordHash,
-        name,
-        referralCode: await generateReferralCode(),
-        referredById,
-        referralCount: 0,
-      },
-    });
+    let user;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        user = await db.user.create({
+          data: {
+            email,
+            passwordHash,
+            name,
+            referralCode: await generateReferralCode(),
+            referredById,
+            referralCount: 0,
+          },
+        });
+        break;
+      } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002" && attempt < 4) continue;
+        throw e;
+      }
+    }
+    if (!user) throw new Error("Failed to create user");
 
     if (referredById && user.id !== referredById) {
       await db.$transaction(async (tx) => {
         await tx.referralReward.create({
-          data: { inviterId: referredById, inviteeId: user.id },
+          data: { inviterId: referredById, inviteeId: user.id, pointsAwarded: 50 },
         });
 
         const inviterWallet = await tx.wallet.upsert({
@@ -99,7 +110,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ id: user.id, email: user.email, name: user.name });
-  } catch {
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return NextResponse.json({ error: "Email 或推薦碼重複" }, { status: 409 });
+    }
     return NextResponse.json({ error: "Registration failed" }, { status: 500 });
   }
 }

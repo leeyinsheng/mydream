@@ -14,10 +14,11 @@ export function ProfilePage() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     fetch("/api/referral/stats")
       .then((r) => r.json())
       .then(setStats);
-  }, []);
+  }, [status]);
 
   if (status === "unauthenticated") {
     router.push("/login");

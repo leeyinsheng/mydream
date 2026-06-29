@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { createTransaction } from "@/lib/wallet";
+import { getSessionUserId } from "@/lib/auth-utils";
 
 export async function GET(req: Request) {
   if (process.env.MOCK_PAYMENT_ENABLED !== "true") {
@@ -10,10 +11,10 @@ export async function GET(req: Request) {
   }
 
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  const userId = getSessionUserId(session);
+  if (!userId) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
-  const userId = (session.user as { id: string }).id;
 
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get("orderId");

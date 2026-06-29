@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getSessionUserId } from "@/lib/auth-utils";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
+  const userId = getSessionUserId(session);
+  if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const userId = (session.user as { id: string }).id;
   const user = await db.user.findUnique({
     where: { id: userId },
     select: { referralCode: true, referralCount: true },
