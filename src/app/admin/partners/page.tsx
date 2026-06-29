@@ -62,8 +62,8 @@ export default async function PartnerAdminPage() {
                 <Package className="h-3 w-3" /> {p.products.length} 個商品
               </div>
               <div className="space-y-2">
-                {p.products.map((pr, i) => (
-                  <div key={i} className="flex justify-between text-sm border rounded p-2">
+                {p.products.map((pr) => (
+                  <div key={pr.name} className="flex justify-between text-sm border rounded p-2">
                     <span>{pr.name}</span>
                     <span className="font-mono text-primary font-semibold">{pr.points.toLocaleString()} 點</span>
                   </div>

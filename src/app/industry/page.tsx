@@ -306,7 +306,7 @@ export default function IndustryPage() {
           setGlobalUpdatedAt(res.updatedAt);
         }
       })
-      .catch(() => {});
+      .catch((e) => console.error("產業分析讀取失敗:", e));
   }, []);
 
   const llm = llmData?.[active];

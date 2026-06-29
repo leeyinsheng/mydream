@@ -20,9 +20,9 @@ export default function ExchangePage() {
   const [result, setResult] = useState<{ success: boolean; code?: string; error?: string } | null>(null);
 
   useEffect(() => {
-    fetch("/api/exchange/products").then((r) => r.json()).then(setProducts).catch(() => {});
+    fetch("/api/exchange/products").then((r) => r.json()).then(setProducts).catch((e) => console.error("兌換商品讀取失敗:", e));
     if (session) {
-      fetch("/api/wallet").then((r) => r.json()).then((d) => d.wallet && setWalletBalance(d.wallet.balance)).catch(() => {});
+      fetch("/api/wallet").then((r) => r.json()).then((d) => d.wallet && setWalletBalance(d.wallet.balance)).catch((e) => console.error("錢包餘額讀取失敗:", e));
     }
   }, [session]);
 
