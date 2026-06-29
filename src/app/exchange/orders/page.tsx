@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -18,16 +18,16 @@ export default function ExchangeOrdersPage() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const fetched = useRef(false);
 
   useEffect(() => {
-    if (status === "authenticated") {
+    if (status === "authenticated" && !fetched.current) {
+      fetched.current = true;
       fetch("/api/exchange/orders")
         .then((r) => r.json())
         .then(setOrders)
         .catch(() => setOrders([]))
         .finally(() => setLoading(false));
-    } else if (status !== "loading") {
-      setLoading(false);
     }
   }, [status]);
 
