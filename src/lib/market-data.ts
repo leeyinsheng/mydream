@@ -51,6 +51,14 @@ interface YahooResult {
   };
 }
 
+function getYahooTtl(interval: string): number {
+  if (interval === "1m" || interval === "5m") return 15000;
+  if (interval === "15m") return 30000;
+  if (interval === "1h") return 60000;
+  if (interval === "1d") return 120000;
+  return 300000;
+}
+
 async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promise<YahooResult | null> {
   const cacheKey = `yahoo:${symbol}:${range}:${interval}`;
   const cached = await getCached<YahooResult>(cacheKey);
@@ -63,7 +71,7 @@ async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promis
     const json = await res.json();
     const result = json.chart?.result?.[0];
     if (!result) return null;
-    await setCache(cacheKey, result, 5000);
+    await setCache(cacheKey, result, getYahooTtl(interval));
     return result;
   } catch { return null; }
 }
