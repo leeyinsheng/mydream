@@ -78,23 +78,79 @@ async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promis
 
 export async function getQuote(symbol: string): Promise<Quote | null> {
   const raw = await fetchYahoo(symbol, "1d");
-  if (!raw) return null;
-  const m = raw.meta;
-  const price = m.regularMarketPrice;
-  const prev = m.chartPreviousClose;
-  const change = price - prev;
-  const changePercent = prev ? (change / prev) * 100 : 0;
-  return {
-    symbol,
-    price,
-    change,
-    changePercent,
-    high: m.regularMarketDayHigh,
-    low: m.regularMarketDayLow,
-    open: prev,
-    previousClose: prev,
-    name: m.longName || m.shortName,
+  if (raw) {
+    const m = raw.meta;
+    const price = m.regularMarketPrice;
+    const prev = m.chartPreviousClose;
+    const change = price - prev;
+    const changePercent = prev ? (change / prev) * 100 : 0;
+    return {
+      symbol,
+      price,
+      change,
+      changePercent,
+      high: m.regularMarketDayHigh,
+      low: m.regularMarketDayLow,
+      open: prev,
+      previousClose: prev,
+      name: m.longName || m.shortName,
+    };
+  }
+  return getFinnhubQuote(symbol);
+}
+
+async function getFinnhubQuote(symbol: string): Promise<Quote | null> {
+  if (!FINNHUB_KEY) return null;
+  try {
+    const url = `${FINNHUB_BASE}/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || data.c === 0) return null;
+    const price = data.c;
+    const prev = data.pc;
+    return {
+      symbol,
+      price,
+      change: price - prev,
+      changePercent: prev ? ((price - prev) / prev) * 100 : 0,
+      high: data.h,
+      low: data.l,
+      open: data.o,
+      previousClose: prev,
+    };
+  } catch { return null; }
+}
+
+async function getFinnhubCandles(symbol: string, range: string, interval: string): Promise<CandleData[]> {
+  if (!FINNHUB_KEY) return [];
+  const resolutionMap: Record<string, string> = {
+    "15m": "15", "1h": "60", "1d": "D", "1wk": "W",
   };
+  const resolution = resolutionMap[interval];
+  if (!resolution) return [];
+  const now = Math.floor(Date.now() / 1000);
+  const rangeSeconds: Record<string, number> = {
+    "1d": 86400, "5d": 432000, "1mo": 2592000,
+    "3mo": 7776000, "6mo": 15552000, "1y": 31536000, "10y": 315360000,
+  };
+  const from = now - (rangeSeconds[range] || 7776000);
+  try {
+    const url = `${FINNHUB_BASE}/stock/candle?symbol=${encodeURIComponent(symbol)}&resolution=${resolution}&from=${from}&to=${now}&token=${FINNHUB_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (data.s !== "ok" || !data.t) return [];
+    return data.t.map((t: number, i: number) => ({
+      time: resolution === "D" || resolution === "W"
+        ? new Date(t * 1000).toISOString().split("T")[0]
+        : t,
+      open: data.o[i],
+      high: data.h[i],
+      low: data.l[i],
+      close: data.c[i],
+    }));
+  } catch { return []; }
 }
 
 export async function getMultipleQuotes(symbols: string[]): Promise<Quote[]> {
@@ -116,25 +172,29 @@ export async function getCandles(symbol: string, range = "6mo"): Promise<CandleD
   };
   const interval = intervalMap[range] || "1d";
   const raw = await fetchYahoo(symbol, range, interval);
-  if (!raw) return [];
-  const quotes = raw.indicators.quote[0];
-  const isIntraday = interval !== "1d" && interval !== "1wk";
-  return raw.timestamp
-    .map((t, i) => {
-      const o = quotes.open[i];
-      const h = quotes.high[i];
-      const l = quotes.low[i];
-      const c = quotes.close[i];
-      if (o === null || h === null || l === null || c === null) return null;
-      return {
-        time: isIntraday ? t : new Date(t * 1000).toISOString().split("T")[0],
-        open: o,
-        high: h,
-        low: l,
-        close: c,
-      };
-    })
-    .filter((d): d is CandleData => d !== null);
+  if (raw) {
+    const quotes = raw.indicators.quote[0];
+    const isIntraday = interval !== "1d" && interval !== "1wk";
+    return raw.timestamp
+      .map((t, i) => {
+        const o = quotes.open[i];
+        const h = quotes.high[i];
+        const l = quotes.low[i];
+        const c = quotes.close[i];
+        if (o === null || h === null || l === null || c === null) return null;
+        return {
+          time: isIntraday ? t : new Date(t * 1000).toISOString().split("T")[0],
+          open: o,
+          high: h,
+          low: l,
+          close: c,
+        };
+      })
+      .filter((d): d is CandleData => d !== null);
+  }
+  const finnCandles = await getFinnhubCandles(symbol, range, interval);
+  if (finnCandles.length > 0) return finnCandles;
+  return [];
 }
 
 const MOCK_TW_STOCKS = [
