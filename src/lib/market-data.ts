@@ -293,6 +293,63 @@ const MOCK_FOREX: ForexPair[] = [
   { pair: "AUD/USD", rate: 0.657, yahoosym: "AUDUSD=X" },
 ];
 
+export interface CommodityItem {
+  name: string;
+  symbol: string;
+  price: number;
+  change: number;
+  changePercent: number;
+}
+
+const COMMODITY_SYMBOLS: { name: string; symbol: string }[] = [
+  { name: "黃金 (XAU/USD)", symbol: "GC=F" },
+  { name: "白銀 (XAG/USD)", symbol: "SI=F" },
+  { name: "原油 (WTI)", symbol: "CL=F" },
+  { name: "天然氣", symbol: "NG=F" },
+  { name: "玉米", symbol: "ZC=F" },
+  { name: "小麥", symbol: "ZW=F" },
+  { name: "黃豆", symbol: "ZS=F" },
+  { name: "銅", symbol: "HG=F" },
+];
+
+const MOCK_COMMODITIES: CommodityItem[] = [
+  { name: "黃金 (XAU/USD)", symbol: "GC=F", price: 2350.50, change: 11.70, changePercent: 0.5 },
+  { name: "白銀 (XAG/USD)", symbol: "SI=F", price: 28.32, change: 0.22, changePercent: 0.8 },
+  { name: "原油 (WTI)", symbol: "CL=F", price: 78.50, change: -0.95, changePercent: -1.2 },
+  { name: "天然氣", symbol: "NG=F", price: 2.15, change: -0.01, changePercent: -0.4 },
+  { name: "玉米", symbol: "ZC=F", price: 458.00, change: 1.37, changePercent: 0.3 },
+  { name: "小麥", symbol: "ZW=F", price: 542.00, change: -3.27, changePercent: -0.6 },
+  { name: "黃豆", symbol: "ZS=F", price: 1185.00, change: 12.90, changePercent: 1.1 },
+  { name: "銅", symbol: "HG=F", price: 4.52, change: 0.01, changePercent: 0.2 },
+];
+
+export async function getCommodityPrices(): Promise<CommodityItem[]> {
+  const cacheKey = "commodity:prices";
+  const cached = await getCached<CommodityItem[]>(cacheKey);
+  if (cached) return cached;
+  try {
+    const results = await Promise.allSettled(
+      COMMODITY_SYMBOLS.map(async (info) => {
+        const quote = await getQuote(info.symbol);
+        if (!quote) return null;
+        return {
+          name: info.name,
+          symbol: info.symbol,
+          price: quote.price,
+          change: quote.change,
+          changePercent: quote.changePercent,
+        };
+      })
+    );
+    const items = results
+      .filter((r) => r.status === "fulfilled" && r.value !== null)
+      .map((r) => (r as PromiseFulfilledResult<CommodityItem>).value);
+    if (items.length === 0) return MOCK_COMMODITIES;
+    await setCache(cacheKey, items, 5000);
+    return items;
+  } catch { return MOCK_COMMODITIES; }
+}
+
 export async function getForexRates(): Promise<ForexPair[]> {
   const cacheKey = "forex:rates";
   const cached = await getCached<ForexPair[]>(cacheKey);
