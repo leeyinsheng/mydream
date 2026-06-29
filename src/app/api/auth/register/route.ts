@@ -3,11 +3,15 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { createTransaction } from "@/lib/wallet";
 
-function generateReferralCode(): string {
+async function generateReferralCode(): Promise<string> {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  let code = "FIN-";
-  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  return code;
+  for (let attempt = 0; attempt < 10; attempt++) {
+    let code = "FIN-";
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    const existing = await db.user.findUnique({ where: { referralCode: code } });
+    if (!existing) return code;
+  }
+  return `FIN-${Date.now().toString(36).toUpperCase()}`;
 }
 
 export async function POST(req: Request) {
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
         email,
         passwordHash,
         name,
-        referralCode: generateReferralCode(),
+        referralCode: await generateReferralCode(),
         referredById,
         referralCount: 0,
       },
