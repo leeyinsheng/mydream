@@ -312,6 +312,10 @@ const COMMODITY_SYMBOLS: { name: string; symbol: string }[] = [
   { name: "銅", symbol: "HG=F" },
 ];
 
+export function getCommodityName(symbol: string): string | undefined {
+  return COMMODITY_SYMBOLS.find((c) => c.symbol === symbol)?.name;
+}
+
 const MOCK_COMMODITIES: CommodityItem[] = [
   { name: "黃金 (XAU/USD)", symbol: "GC=F", price: 2350.50, change: 11.70, changePercent: 0.5 },
   { name: "白銀 (XAG/USD)", symbol: "SI=F", price: 28.32, change: 0.22, changePercent: 0.8 },
