@@ -62,7 +62,7 @@ async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promis
     const json = await res.json();
     const result = json.chart?.result?.[0];
     if (!result) return null;
-    await setCache(cacheKey, result, 30000);
+    await setCache(cacheKey, result, 5000);
     return result;
   } catch { return null; }
 }
@@ -169,23 +169,6 @@ const MOCK_INDICES: IndexQuote[] = [
   { symbol: "^STI", name: "海峽時報", country: "新加坡", flag: "🇸🇬", price: 3380, change: 18, changePercent: 0.54, high: 3395, low: 3365, open: 3362, previousClose: 3362 },
 ];
 
-async function fetchFinnhubQuote(symbol: string): Promise<{ price: number; prev: number; high: number; low: number; open: number } | null> {
-  if (!FINNHUB_KEY) return null;
-  const cacheKey = `finnhub:quote:${symbol}`;
-  const cached = await getCached<{ price: number; prev: number; high: number; low: number; open: number }>(cacheKey);
-  if (cached) return cached;
-  try {
-    const url = `${FINNHUB_BASE}/quote?symbol=${encodeURIComponent(symbol)}&token=${FINNHUB_KEY}`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (!json.c || typeof json.c !== "number") return null;
-    const result = { price: json.c, prev: json.pc || 0, high: json.h || 0, low: json.l || 0, open: json.o || 0 };
-    await setCache(cacheKey, result, 15000);
-    return result;
-  } catch { return null; }
-}
-
 export async function getGlobalIndices(): Promise<IndexQuote[]> {
   const cacheKey = "global:indices";
   const cached = await getCached<IndexQuote[]>(cacheKey);
@@ -193,24 +176,23 @@ export async function getGlobalIndices(): Promise<IndexQuote[]> {
   try {
     const results = await Promise.allSettled(
       GLOBAL_INDICES.map(async (info) => {
-        const fromFinnhub = await fetchFinnhubQuote(info.symbol);
-        if (fromFinnhub) {
-          const { price, prev, high, low } = fromFinnhub;
-          return {
-            symbol: info.symbol, name: info.name, country: info.country, flag: info.flag,
-            price, change: price - prev, changePercent: prev ? ((price - prev) / prev) * 100 : 0,
-            high, low, open: prev, previousClose: prev,
-          };
-        }
         const raw = await fetchYahoo(info.symbol);
         if (!raw || !raw.meta.regularMarketPrice) return null;
         const m = raw.meta;
         const price = m.regularMarketPrice;
         const prev = m.chartPreviousClose;
         return {
-          symbol: info.symbol, name: info.name, country: info.country, flag: info.flag,
-          price, change: price - prev, changePercent: prev ? ((price - prev) / prev) * 100 : 0,
-          high: m.regularMarketDayHigh, low: m.regularMarketDayLow, open: prev, previousClose: prev,
+          symbol: info.symbol,
+          name: info.name,
+          country: info.country,
+          flag: info.flag,
+          price,
+          change: price - prev,
+          changePercent: prev ? ((price - prev) / prev) * 100 : 0,
+          high: m.regularMarketDayHigh,
+          low: m.regularMarketDayLow,
+          open: prev,
+          previousClose: prev,
         };
       })
     );
@@ -218,7 +200,7 @@ export async function getGlobalIndices(): Promise<IndexQuote[]> {
       .filter((r) => r.status === "fulfilled" && r.value !== null)
       .map((r) => (r as PromiseFulfilledResult<IndexQuote>).value);
     if (indices.length === 0) return MOCK_INDICES;
-    await setCache(cacheKey, indices, 15000);
+    await setCache(cacheKey, indices, 5000);
     return indices;
   } catch { return MOCK_INDICES; }
 }
