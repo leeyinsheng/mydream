@@ -56,7 +56,8 @@ async function fetchYahoo(symbol: string, range = "1d", interval = "1d"): Promis
   const cached = await getCached<YahooResult>(cacheKey);
   if (cached) return cached;
   try {
-    const url = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}&includePrePost=false`;
+    const isFutures = symbol.endsWith("=F");
+    const url = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?interval=${interval}&range=${range}${isFutures ? "" : "&includePrePost=false"}`;
     const res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
     if (!res.ok) return null;
     const json = await res.json();

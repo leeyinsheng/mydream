@@ -29,6 +29,7 @@ export function StockChart({ data, height = 400, showMA = true }: Props) {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#9CA3AF" },
       grid: { vertLines: { color: "rgba(156,163,175,0.1)" }, horzLines: { color: "rgba(156,163,175,0.1)" } },
       crosshair: { mode: 0 },
+      localization: { dateFormat: "yyyy/MM/dd" },
       timeScale: { timeVisible: true, secondsVisible: false },
     });
 

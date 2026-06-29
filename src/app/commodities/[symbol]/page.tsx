@@ -73,6 +73,7 @@ export default async function CommodityDetailPage({ params, searchParams }: Prop
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">走勢圖</CardTitle>
             <div className="flex gap-0.5">
+              <span className="text-[10px] text-muted-foreground mr-1 self-center">台北時間</span>
               {RANGES.map((r) => (
                 <Link
                   key={r.range}
