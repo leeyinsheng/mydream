@@ -16,6 +16,18 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "FinPulse - 投資分析入口網站",
   description: "全球股市、原物料、外匯、產業分析一站式平台",
+  openGraph: {
+    title: "FinPulse - 投資分析入口網站",
+    description: "全球股市、原物料、外匯、產業分析一站式平台",
+    type: "website",
+    locale: "zh_TW",
+    siteName: "FinPulse",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FinPulse - 投資分析入口網站",
+    description: "全球股市、原物料、外匯、產業分析一站式平台",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
