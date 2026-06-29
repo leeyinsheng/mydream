@@ -26,7 +26,11 @@ export function GainersLosers({ quotes }: Props) {
     (q) => typeof q.changePercent === "number" && !Number.isNaN(q.changePercent)
   );
   const sorted = [...data].sort((a, b) => b.changePercent - a.changePercent);
-  const gainers = sorted.filter((q) => q.changePercent > 0).slice(0, 5);
+
+  const hasPositive = sorted.some((q) => q.changePercent > 0);
+  const gainers = hasPositive
+    ? sorted.filter((q) => q.changePercent > 0).slice(0, 5)
+    : sorted.slice(0, 5);
   const losers = sorted.filter((q) => q.changePercent < 0).slice(-5).reverse();
 
   return (
@@ -42,7 +46,7 @@ export function GainersLosers({ quotes }: Props) {
             gainers.map((q) => (
               <div key={q.symbol} className="flex justify-between py-1.5 text-sm">
                 <span>{q.symbol.replace(".TW", "")}</span>
-                <span className="text-green-500">{pct(q.changePercent)}</span>
+                <span className={q.changePercent >= 0 ? "text-green-500" : "text-red-500"}>{pct(q.changePercent)}</span>
               </div>
             ))
           )}
