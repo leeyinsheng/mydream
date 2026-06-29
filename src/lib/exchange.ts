@@ -85,7 +85,12 @@ export async function getUserOrders(userId: string) {
 
 export async function getPartners() {
   return db.partner.findMany({
-    include: { products: true },
+    select: {
+      id: true, name: true, apiEndpoint: true, status: true, createdAt: true,
+      products: {
+        select: { id: true, name: true, description: true, pointsCost: true, imageIcon: true, stock: true, status: true, createdAt: true },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 }
