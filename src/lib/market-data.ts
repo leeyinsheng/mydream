@@ -271,23 +271,23 @@ export interface ForexPair {
   yahoosym: string;
 }
 
-const FOREX_INFO: { pair: string; yahoosym: string; currency: string }[] = [
-  { pair: "TWD/USD", yahoosym: "USDTWD=X", currency: "TWD" },
-  { pair: "JPY/USD", yahoosym: "USDJPY=X", currency: "JPY" },
-  { pair: "CNH/USD", yahoosym: "USDCNY=X", currency: "CNY" },
-  { pair: "CAD/USD", yahoosym: "USDCAD=X", currency: "CAD" },
-  { pair: "KRW/USD", yahoosym: "USDKRW=X", currency: "KRW" },
-  { pair: "EUR/USD", yahoosym: "EURUSD=X", currency: "EUR" },
-  { pair: "GBP/USD", yahoosym: "GBPUSD=X", currency: "GBP" },
-  { pair: "AUD/USD", yahoosym: "AUDUSD=X", currency: "AUD" },
+const FOREX_INFO: { pair: string; yahoosym: string; currency: string; isUsdBase: boolean }[] = [
+  { pair: "USD/TWD", yahoosym: "USDTWD=X", currency: "TWD", isUsdBase: true },
+  { pair: "USD/JPY", yahoosym: "USDJPY=X", currency: "JPY", isUsdBase: true },
+  { pair: "USD/CNH", yahoosym: "USDCNY=X", currency: "CNY", isUsdBase: true },
+  { pair: "USD/CAD", yahoosym: "USDCAD=X", currency: "CAD", isUsdBase: true },
+  { pair: "USD/KRW", yahoosym: "USDKRW=X", currency: "KRW", isUsdBase: true },
+  { pair: "EUR/USD", yahoosym: "EURUSD=X", currency: "EUR", isUsdBase: false },
+  { pair: "GBP/USD", yahoosym: "GBPUSD=X", currency: "GBP", isUsdBase: false },
+  { pair: "AUD/USD", yahoosym: "AUDUSD=X", currency: "AUD", isUsdBase: false },
 ];
 
 const MOCK_FOREX: ForexPair[] = [
-  { pair: "TWD/USD", rate: 0.031, yahoosym: "USDTWD=X" },
-  { pair: "JPY/USD", rate: 0.0066, yahoosym: "USDJPY=X" },
-  { pair: "CNH/USD", rate: 0.138, yahoosym: "USDCNY=X" },
-  { pair: "CAD/USD", rate: 0.734, yahoosym: "USDCAD=X" },
-  { pair: "KRW/USD", rate: 0.00074, yahoosym: "USDKRW=X" },
+  { pair: "USD/TWD", rate: 32.26, yahoosym: "USDTWD=X" },
+  { pair: "USD/JPY", rate: 151.5, yahoosym: "USDJPY=X" },
+  { pair: "USD/CNH", rate: 7.25, yahoosym: "USDCNY=X" },
+  { pair: "USD/CAD", rate: 1.36, yahoosym: "USDCAD=X" },
+  { pair: "USD/KRW", rate: 1351.3, yahoosym: "USDKRW=X" },
   { pair: "EUR/USD", rate: 1.0852, yahoosym: "EURUSD=X" },
   { pair: "GBP/USD", rate: 1.268, yahoosym: "GBPUSD=X" },
   { pair: "AUD/USD", rate: 0.657, yahoosym: "AUDUSD=X" },
@@ -307,9 +307,10 @@ export async function getForexRates(): Promise<ForexPair[]> {
     for (const info of FOREX_INFO) {
       const rate = r(info.currency);
       if (!rate) continue;
-      const fixed = info.pair === "KRW/USD"
-        ? parseFloat((1 / rate).toFixed(6))
-        : parseFloat((1 / rate).toFixed(4));
+      const val = info.isUsdBase ? rate : 1 / rate;
+      const fixed = info.pair === "USD/KRW"
+        ? parseFloat(val.toFixed(2))
+        : parseFloat(val.toFixed(4));
       result.push({ pair: info.pair, rate: fixed, yahoosym: info.yahoosym });
     }
     if (result.length === 0) return MOCK_FOREX;

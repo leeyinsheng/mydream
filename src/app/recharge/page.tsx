@@ -33,6 +33,7 @@ export default function RechargePage() {
       });
       if (!res.ok) throw new Error("Failed");
       const data = await res.json();
+      if (!data.paymentUrl) throw new Error("No payment URL");
       window.location.href = data.paymentUrl;
     } catch {
       setStep("error");

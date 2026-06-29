@@ -33,7 +33,7 @@ export default async function ForexPage() {
             <Card className="active:bg-muted transition-colors">
               <CardHeader className="pb-2"><CardTitle className="text-sm">{item.pair}</CardTitle></CardHeader>
               <CardContent>
-                <p className="text-xl font-bold">{item.rate.toLocaleString()}</p>
+                <p className="text-xl font-bold">{item.rate.toLocaleString(undefined, { maximumFractionDigits: item.rate >= 100 ? 2 : 4 })}</p>
                 <div className="flex items-center gap-1 mt-1 text-sm text-muted-foreground">
                   <ArrowUp className="h-4 w-4" />
                   <span>即時</span>

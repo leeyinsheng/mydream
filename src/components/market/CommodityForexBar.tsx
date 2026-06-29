@@ -5,12 +5,12 @@ export async function CommodityForexBar() {
   const forex = await getForexRates();
 
   return (
-    <div className="grid grid-cols-2 grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-2">
       {forex.slice(0, 4).map((item) => (
         <Card key={item.pair}>
           <CardContent className="p-3 text-center">
             <p className="text-xs text-muted-foreground">{item.pair}</p>
-            <p className="text-lg font-bold">{item.rate.toLocaleString()}</p>
+            <p className="text-lg font-bold">{item.rate.toLocaleString(undefined, { maximumFractionDigits: item.rate >= 100 ? 2 : 4 })}</p>
           </CardContent>
         </Card>
       ))}

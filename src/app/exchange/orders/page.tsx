@@ -24,7 +24,10 @@ export default function ExchangeOrdersPage() {
       fetch("/api/exchange/orders")
         .then((r) => r.json())
         .then(setOrders)
+        .catch(() => setOrders([]))
         .finally(() => setLoading(false));
+    } else if (status !== "loading") {
+      setLoading(false);
     }
   }, [status]);
 

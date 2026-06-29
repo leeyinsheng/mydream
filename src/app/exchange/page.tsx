@@ -20,9 +20,9 @@ export default function ExchangePage() {
   const [result, setResult] = useState<{ success: boolean; code?: string; error?: string } | null>(null);
 
   useEffect(() => {
-    fetch("/api/exchange/products").then((r) => r.json()).then(setProducts);
+    fetch("/api/exchange/products").then((r) => r.json()).then(setProducts).catch(() => {});
     if (session) {
-      fetch("/api/wallet").then((r) => r.json()).then((d) => d.wallet && setWalletBalance(d.wallet.balance));
+      fetch("/api/wallet").then((r) => r.json()).then((d) => d.wallet && setWalletBalance(d.wallet.balance)).catch(() => {});
     }
   }, [session]);
 
