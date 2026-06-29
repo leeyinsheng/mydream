@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Lightbulb, AlertTriangle, TrendingUpIcon, BarChart3, ArrowRight, Sparkles } from "lucide-react";
+import { TrendingUp, TrendingDown, Lightbulb, AlertTriangle, TrendingUpIcon, BarChart3, ArrowRight, Sparkles, Clock } from "lucide-react";
 
 interface AnalysisSection {
   title: string;
@@ -19,6 +19,7 @@ interface IndustryData {
   outlook: string;
   stocks: StockInfo[];
   etfs: string[];
+  updatedAt: string;
 }
 
 const INDUSTRIES: Record<string, IndustryData> = {
@@ -60,35 +61,36 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "日月光", ticker: "3711.TW", mcap: 5200, price: 158, pe: 16.5, yoy: 22 },
     ],
     etfs: ["0050.TW 元大台灣50", "00881.TW 國泰台灣5G+", "00923.TW 群益半導體收益"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
   "金融": {
-    outlook: "2026 年台灣金融業面臨降息循環啟動與資本市場波動加劇的雙重考驗。銀行淨利差可能收窄，但財富管理與手續費收入可望填補缺口。壽險族群在避險成本改善與股市上漲帶動下，獲利表現仍有支撐。",
+    outlook: "全球金融業在 2026 年面臨降息循環與 macro 不確定性的雙重考驗。歐美大型銀行在利率正常化後 ROE 改善顯著，亞洲跨境金融與財富管理需求持續增長。台灣金融業在淨利差收窄壓力下，透過海外佈局與手續費收入多元化維持獲利動能。",
     analysis: [
       {
         title: "產業觀點",
         icon: <Lightbulb className="h-4 w-4 text-amber-500" />,
         items: [
-          "Fed 降息循環將壓縮銀行淨利差（NIM），預估每家影響 3-8 bps，但放款量成長可部分抵銷",
-          "壽險業避險成本因新台幣貶值壓力緩解而改善，經常性收益回溫",
-          "證券經紀手續費受惠於日均成交量維持 4,000 億以上，經紀業務維持穩定貢獻",
+          "Fed 與 ECB 降息循環壓縮銀行淨利差，但歐美大型銀行透過投資銀行業務多元化緩解衝擊",
+          "歐洲銀行業獲利顯著回升，Deutsche Bank、BNP Paribas 等 ROE 達 10% 以上，為金融危機以來最佳",
+          "亞洲跨境金融與私人銀行業務快速增長，新加坡、香港 AUM 年增 15-20%",
         ],
       },
       {
         title: "關鍵驅動因子",
         icon: <TrendingUpIcon className="h-4 w-4 text-green-500" />,
         items: [
-          "台灣財富管理市場滲透率持續提升，高資產客戶（AUM 1,000 萬以上）年增 15%",
-          "銀行海外分行獲利貢獻度提高，特別是越南、柬埔寨等東南亞據點",
-          "數位銀行轉型降低營運成本，部分銀行分行租金與人事費用年減 5-8%",
+          "全球保險業投資收益受惠於利率環境改善，AIA、AXA 等壽險龍頭 NBV 維持 double-digit 增長",
+          "東南亞金融滲透率仍低，越南、印尼信貸年增 12-15%，吸引外資銀行積極佈局",
+          "Embedded Finance 與 Banking-as-a-Service 正在重塑零售銀行業務模式，全球市場規模 CAGR 預估 25%",
         ],
       },
       {
         title: "風險關注",
         icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
         items: [
-          "國內不動產放款集中度偏高，若房價修正可能引發資產品質疑慮",
-          "降息幅度超預期將直接衝擊外幣債券投資收益",
-          "純網銀與電子支付業者持續瓜分年輕客群與支付市場",
+          "美國商業不動產（CRE）貸款違約率攀升，中型區域銀行暴露風險最高",
+          "中國房地產持續調整對亞洲金融業資產品質的連鎖效應仍待觀察",
+          "AI 與 FinTech 新創持續侵蝕傳統銀行支付與放款中間業務",
         ],
       },
     ],
@@ -99,35 +101,36 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "兆豐金", ticker: "2886.TW", mcap: 5900, price: 42.30, pe: 13.5, yoy: 12 },
     ],
     etfs: ["0055.TW 元大金融", "00915.TW 凱基金融"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
   "生技": {
-    outlook: "台灣生技產業正處於從研發型轉向商業化的關鍵轉折期。多家新藥公司進入藥證申請或上市銷售階段，CDMO 業務受惠於全球供應鏈重組持續擴張。但個股波動極大，選股需要聚焦在明確的授權里程碑與營收能見度。",
+    outlook: "全球生技產業在 2026 年持續受惠於三股趨勢：GLP-1 類藥物市場爆發式成長、AI 輔助藥物發現加速 pipeline 推進、以及 CDMO 供應鏈重組。台灣生技業在特定 niche（CDMO、細胞治療）具有全球競爭力，但整體仍以國際授權與合作為主要成長動力。",
     analysis: [
       {
         title: "產業觀點",
         icon: <Lightbulb className="h-4 w-4 text-amber-500" />,
         items: [
-          "新藥開發進入收成期，2025-2027 年預計有 5-8 項台灣研發新藥在美/歐申請藥證",
-          "CDMO 族群受惠於全球生技供應鏈去中化的轉單效應，中長期成長趨勢明確",
-          "細胞治療與基因治療成為下一波焦點，台灣多家業者在 CAR-T 領域取得初步成果",
+          "GLP-1 受體促效劑全球市場 2026 年預估突破 500 億美元，Novo Nordisk、Eli Lilly 持續擴充產能",
+          "AI 輔助藥物發現進入實質貢獻階段，Recursion、Insilico 等 AI-first 生技公司多項候選藥物進入臨床",
+          "全球 CDMO 市場受大藥廠外包趨勢推動，Lonza、三星生物製劑產能滿載，台灣 CDMO 業者受惠轉單",
         ],
       },
       {
         title: "關鍵驅動因子",
         icon: <TrendingUpIcon className="h-4 w-4 text-green-500" />,
         items: [
-          "美國 Inflation Reduction Act 壓抑品牌藥價，促使大藥廠擴大對外授權與委託開發",
-          "台灣食品藥物管理署（TFDA）審查效率提升，新藥審查平均縮短至 12 個月",
-          "國內健保給付鬆綁，高階自費醫療與癌症用藥市場持續擴張",
+          "美國 IRA 法案壓抑品牌藥價，大藥廠擴大對外授權與 CDMO 委託，全球授權交易總額年增 20%",
+          "細胞與基因治療（CGT）商業化加速，FDA 已批准超過 30 項 CGT 產品，供應鏈需求爆發",
+          "精準醫療與生物標記（Biomarker）檢測普及，推動伴隨式診斷市場 CAGR 達 18%",
         ],
       },
       {
         title: "風險關注",
         icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
         items: [
-          "臨床試驗失敗為生技投資最大風險，後期臨床解盲結果往往造成股價劇烈波動",
-          "多數公司尚未獲利，本夢比偏高，利率變化對評價影響顯著",
-          "中國生技產業政策補貼與人才回流對台灣形成競爭壓力",
+          "臨床試驗失敗為生技投資最大風險，後期解盲失敗往往造成股價腰斬",
+          "美國藥價改革立法的不確定性可能影響大藥廠定價能力與獲利預期",
+          "中國生技產業在政府補貼與人才回流政策推動下，與台灣形成直接競爭",
         ],
       },
     ],
@@ -138,6 +141,7 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "泰博", ticker: "4736.TW", mcap: 380, price: 142, pe: 18.5, yoy: 5 },
     ],
     etfs: ["00892.TW 富邦台灣生技"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
   "航運": {
     outlook: "貨櫃航運在紅海危機與美國關稅政策雙重影響下，2026 年供需格局仍有變數。散裝航運受惠於中國基礎建設刺激政策，運價可望維持在獲利水準之上。長期來看，航運業的碳中和轉型將加速老舊船舶拆解，有利供需結構改善。",
@@ -177,35 +181,36 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "裕民", ticker: "2606.TW", mcap: 850, price: 58.20, pe: 8.2, yoy: 10 },
     ],
     etfs: ["00915.TW 凱基航運", "0056.TW 元大高股息（含航運）"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
   "電信": {
-    outlook: "台灣電信市場進入 5G 後期的穩定獲利階段，三大業者資本支出高峰已過，自由現金流顯著改善。價格競爭趨於理性，行動通訊 ARPU 止跌回升。中長期成長動能來自企業客戶業務（5G 專網、雲端、資安）與海外布局。",
+    outlook: "全球電信產業正經歷從傳統電信服務商邁向科技平台商的結構性轉型。5G-Advanced 與 6G 研發競賽升溫，LEO 衛星通訊（Starlink）開始挑戰傳統電信邊界。台灣電信三雄在資本支出高峰過後自由現金流顯著改善，企業客戶業務成為第二成長引擎。",
     analysis: [
       {
         title: "產業觀點",
         icon: <Lightbulb className="h-4 w-4 text-amber-500" />,
         items: [
-          "5G 資本支出高峰已過，電信三雄 2026-2027 年自由現金流將明顯改善，股利發放率可望提升",
-          "行動通訊價格戰趨緩，用戶數淨增轉為正成長，ARPU 年增率轉正",
-          "企業客戶業務（ICT/雲端/資安）營收佔比持續攀升，成為第二成長曲線",
+          "全球 5G 用戶數突破 25 億，5G-Advanced 標準凍結推動下一波網路升級週期",
+          "Starlink 等 LEO 衛星通訊用戶數突破 500 萬，對偏遠地區傳統電信形成直接競爭",
+          "全球電信業者積極轉型雲端/IoT/資安服務，T-Mobile US 企業業務營收年增 25%",
         ],
       },
       {
         title: "關鍵驅動因子",
         icon: <TrendingUpIcon className="h-4 w-4 text-green-500" />,
         items: [
-          "台灣企業數位轉型需求強勁，特別是製造業 5G 專網與智慧工廠應用",
-          "資安法規趨嚴帶動企業資安支出年增 15-20%，電信業者具網路層級優勢",
-          "低軌衛星通訊（LEO）商轉將為電信業者開創新收入來源",
+          "6G 研發進入關鍵階段，預計 2028 年標準凍結，中國、美國、歐盟三大陣營投入數百億美元",
+          "全球企業 IoT 連接數突破 200 億，電信業者從連接服務延伸至平台與數據分析",
+          "資安威脅日益嚴峻，全球電信級資安市場年增 18%，電信業者具備網路基礎設施優勢",
         ],
       },
       {
         title: "風險關注",
         icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
         items: [
-          "頻譜折舊費用仍處於高檔，影響獲利表現",
-          "有線電視剪線潮加速，家用固網 VoIP 收入持續下滑",
-          "虛擬電信業者（MVNO）與 OTT 通訊服務持續分食傳統語音收入",
+          "衛星通訊直接對手機（D2D）技術成熟後可能顛覆傳統電信商業模式",
+          "全球頻譜拍賣成本持續攀升，歐洲電信業者獲利率受到壓縮",
+          "OTT 通訊服務（WhatsApp、WeChat、LINE）持續取代傳統語音與簡訊收入",
         ],
       },
     ],
@@ -215,6 +220,7 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "遠傳", ticker: "4904.TW", mcap: 3800, price: 85.50, pe: 19.2, yoy: 6 },
     ],
     etfs: ["00731.TW 復華台灣科技優息", "00919.TW 群益台灣精選高息"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
   "鋼鐵": {
     outlook: "全球鋼鐵產業正經歷從供過於求邁向供需再平衡的結構性調整。中國產能調控政策持續收緊，碳中和轉型加速高爐轉電爐的製程變革。台灣鋼鐵龍頭中鋼積極朝精緻鋼廠轉型，高值化產品比重逐年提升。",
@@ -253,6 +259,7 @@ const INDUSTRIES: Record<string, IndustryData> = {
       { name: "燁輝", ticker: "2023.TW", mcap: 350, price: 17.60, pe: 14.5, yoy: 8 },
     ],
     etfs: ["0050.TW", "00876.TW 富邦鋼鐵"],
+    updatedAt: "2026-06-29T12:00:00.000Z",
   },
 };
 
@@ -318,11 +325,16 @@ export default function IndustryPage() {
       <div>
         <h1 className="text-2xl font-bold">產業分析</h1>
         <p className="text-sm text-muted-foreground mt-1">專業產業觀點與趨勢解讀，協助掌握投資主線</p>
-        {useLlm && globalUpdatedAt && (
+        {useLlm && globalUpdatedAt ? (
           <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
             <Sparkles className="h-3 w-3 text-blue-400" />
             AI 自動更新 · {formatTime(globalUpdatedAt)}
             <span className="text-muted-foreground/60">（中{llm.sourceCount.zh} 英{llm.sourceCount.en}）</span>
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+            <Clock className="h-3 w-3" />
+            最後更新 · {formatTime(ind.updatedAt)}
           </p>
         )}
       </div>

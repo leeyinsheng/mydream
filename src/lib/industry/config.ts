@@ -17,14 +17,14 @@ export const INDUSTRIES: IndustryConfig[] = [
   {
     key: "金融",
     zhName: "金融",
-    enQuery: "Taiwan banking financial sector 2026",
+    enQuery: "global banking finance sector interest rate 2026",
     zhQuery: "金融 銀行 產業",
     tickers: ["2881.TW", "2882.TW", "2891.TW", "2886.TW"],
   },
   {
     key: "生技",
     zhName: "生技",
-    enQuery: "biotech pharmaceutical Taiwan 2026",
+    enQuery: "biotech pharmaceutical GLP-1 CDMO AI drug discovery 2026",
     zhQuery: "生技 醫療 產業",
     tickers: ["6446.TW", "4743.TW", "4147.TW", "4736.TW"],
   },
@@ -38,7 +38,7 @@ export const INDUSTRIES: IndustryConfig[] = [
   {
     key: "電信",
     zhName: "電信",
-    enQuery: "telecommunications Taiwan 5G 2026",
+    enQuery: "telecommunications 5G 6G satellite Starlink global 2026",
     zhQuery: "電信 5G 產業",
     tickers: ["2412.TW", "3045.TW", "4904.TW"],
   },
