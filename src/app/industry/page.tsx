@@ -357,8 +357,8 @@ export default function IndustryPage() {
           <CardHeader><CardTitle className="text-base flex items-center gap-2">{section.icon} {section.title}</CardTitle></CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {section.items.map((item, i) => (
-                <li key={i} className="flex gap-2 text-sm">
+              {section.items.map((item) => (
+                <li key={`${section.title}-${item}`} className="flex gap-2 text-sm">
                   <ArrowRight className="h-4 w-4 mt-0.5 shrink-0 text-muted-foreground" />
                   <span>{item}</span>
                 </li>

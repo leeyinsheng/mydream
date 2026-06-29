@@ -46,8 +46,8 @@ export default function FAQPage() {
     <div className="space-y-4">
       <h1 className="text-2xl font-bold">常見問題</h1>
       <div className="space-y-2">
-        {FAQS.map((faq, i) => (
-          <Card key={i}>
+        {FAQS.map((faq) => (
+          <Card key={faq.q}>
             <CardContent className="p-4">
               <p className="font-semibold text-sm mb-1">{faq.q}</p>
               <p className="text-sm text-muted-foreground">{faq.a}</p>

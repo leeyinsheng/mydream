@@ -13,6 +13,7 @@ const RANGES = [
   { label: "本週", range: "5d" },
   { label: "本月", range: "1mo" },
   { label: "3月", range: "3mo" },
+  { label: "6月", range: "6mo" },
   { label: "1年", range: "1y" },
   { label: "10年", range: "10y" },
 ];

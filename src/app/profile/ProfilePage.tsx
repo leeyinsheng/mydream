@@ -17,7 +17,8 @@ export function ProfilePage() {
     if (status !== "authenticated") return;
     fetch("/api/referral/stats")
       .then((r) => r.json())
-      .then(setStats);
+      .then(setStats)
+      .catch(() => setStats(null));
   }, [status]);
 
   if (status === "unauthenticated") {

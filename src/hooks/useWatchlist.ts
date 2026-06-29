@@ -19,24 +19,29 @@ export function useWatchlist() {
     fetch("/api/watchlist")
       .then((r) => (r.ok ? r.json() : []))
       .then(setItems)
+      .catch(() => setItems([]))
       .finally(() => setLoading(false));
   }, []);
 
   const add = useCallback(async (symbol: string, name: string, type: string) => {
-    const res = await fetch("/api/watchlist", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ symbol, name, type }),
-    });
-    if (res.ok) {
-      const item = await res.json();
-      setItems((prev) => [...prev.filter((i) => i.symbol !== symbol), item]);
-    }
+    try {
+      const res = await fetch("/api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbol, name, type }),
+      });
+      if (res.ok) {
+        const item = await res.json();
+        setItems((prev) => [...prev.filter((i) => i.symbol !== symbol), item]);
+      }
+    } catch { /* ignore */ }
   }, []);
 
   const remove = useCallback(async (symbol: string) => {
-    await fetch(`/api/watchlist?symbol=${encodeURIComponent(symbol)}`, { method: "DELETE" });
-    setItems((prev) => prev.filter((i) => i.symbol !== symbol));
+    try {
+      await fetch(`/api/watchlist?symbol=${encodeURIComponent(symbol)}`, { method: "DELETE" });
+      setItems((prev) => prev.filter((i) => i.symbol !== symbol));
+    } catch { /* ignore */ }
   }, []);
 
   const isWatched = useCallback(
