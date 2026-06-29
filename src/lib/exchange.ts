@@ -4,7 +4,13 @@ import { db } from "./db";
 export async function getProducts() {
   return db.exchangeProduct.findMany({
     where: { status: "active", stock: { not: 0 } },
-    include: { partner: true },
+    select: {
+      id: true, partnerId: true, name: true, description: true, pointsCost: true,
+      imageIcon: true, stock: true, status: true, createdAt: true,
+      partner: {
+        select: { id: true, name: true, apiEndpoint: true, status: true, createdAt: true },
+      },
+    },
     orderBy: { pointsCost: "asc" },
   });
 }
