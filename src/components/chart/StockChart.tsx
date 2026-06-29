@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { createChart, CandlestickSeriesPartialOptions, LineSeriesPartialOptions, ColorType } from "lightweight-charts";
 
-interface CandleData { time: string; open: number; high: number; low: number; close: number; }
+interface CandleData { time: string | number; open: number; high: number; low: number; close: number; }
 interface Props {
   data: CandleData[];
   height?: number;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 function calcMA(data: CandleData[], period: number) {
-  const result: { time: string; value: number }[] = [];
+  const result: { time: string | number; value: number }[] = [];
   for (let i = period - 1; i < data.length; i++) {
     let sum = 0;
     for (let j = 0; j < period; j++) sum += data[i - j].close;
@@ -37,7 +37,7 @@ export function StockChart({ data, height = 400, showMA = true }: Props) {
       borderDownColor: "#EF4444", borderUpColor: "#22C55E",
       wickDownColor: "#EF4444", wickUpColor: "#22C55E",
     } as CandlestickSeriesPartialOptions);
-    candleSeries.setData(data);
+    candleSeries.setData(data as any);
 
     if (showMA) {
       const ma5 = calcMA(data, 5);
@@ -45,15 +45,15 @@ export function StockChart({ data, height = 400, showMA = true }: Props) {
       const ma60 = calcMA(data, 60);
       if (ma5.length > 0) {
         const ma5Line = chart.addLineSeries({ color: "#f59e0b", lineWidth: 1 } as LineSeriesPartialOptions);
-        ma5Line.setData(ma5);
+        ma5Line.setData(ma5 as any);
       }
       if (ma20.length > 0) {
         const ma20Line = chart.addLineSeries({ color: "#8b5cf6", lineWidth: 1 } as LineSeriesPartialOptions);
-        ma20Line.setData(ma20);
+        ma20Line.setData(ma20 as any);
       }
       if (ma60.length > 0) {
         const ma60Line = chart.addLineSeries({ color: "#3b82f6", lineWidth: 1 } as LineSeriesPartialOptions);
-        ma60Line.setData(ma60);
+        ma60Line.setData(ma60 as any);
       }
     }
 

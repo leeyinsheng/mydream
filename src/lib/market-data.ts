@@ -18,7 +18,7 @@ export interface Quote {
 }
 
 export interface CandleData {
-  time: string;
+  time: string | number;
   open: number;
   high: number;
   low: number;
@@ -96,9 +96,20 @@ export async function getMultipleQuotes(symbols: string[]): Promise<Quote[]> {
 }
 
 export async function getCandles(symbol: string, range = "6mo"): Promise<CandleData[]> {
-  const raw = await fetchYahoo(symbol, range, "1d");
+  const intervalMap: Record<string, string> = {
+    "1d": "15m",
+    "5d": "1h",
+    "1mo": "1d",
+    "3mo": "1d",
+    "6mo": "1d",
+    "1y": "1d",
+    "10y": "1wk",
+  };
+  const interval = intervalMap[range] || "1d";
+  const raw = await fetchYahoo(symbol, range, interval);
   if (!raw) return [];
   const quotes = raw.indicators.quote[0];
+  const isIntraday = interval !== "1d" && interval !== "1wk";
   return raw.timestamp
     .map((t, i) => {
       const o = quotes.open[i];
@@ -107,7 +118,7 @@ export async function getCandles(symbol: string, range = "6mo"): Promise<CandleD
       const c = quotes.close[i];
       if (o === null || h === null || l === null || c === null) return null;
       return {
-        time: new Date(t * 1000).toISOString().split("T")[0],
+        time: isIntraday ? t : new Date(t * 1000).toISOString().split("T")[0],
         open: o,
         high: h,
         low: l,
